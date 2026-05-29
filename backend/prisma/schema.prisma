@@ -1,0 +1,100 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlserver"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id    Int    @id @default(autoincrement()) @map("KasutajaID")
+  name  String @map("Nimi") @db.NVarChar(100)
+  email String @unique @map("Email") @db.NVarChar(100)
+  role  String @map("Roll") @db.NVarChar(30)
+
+  properties Property[]
+  bookings   Booking[]
+
+  @@map("Kasutaja")
+}
+
+model Property {
+  id          Int      @id @default(autoincrement()) @map("KinnisvaraID")
+  ownerId     Int      @map("KasutajaID")
+  title       String   @map("Nimetus") @db.NVarChar(100)
+  city        String   @map("Linn") @db.NVarChar(100)
+  address     String?  @map("Aadress") @db.NVarChar(200)
+  type        String   @map("Tyyp") @db.NVarChar(50)
+  description String?  @map("Kirjeldus") @db.NVarChar(500)
+  price       Decimal  @map("Hind") @db.Decimal(10, 2)
+  status      String   @map("Staatus") @db.NVarChar(30)
+
+  owner    User      @relation(fields: [ownerId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  bookings Booking[]
+  images   Image[]
+  dates    Availability[]
+
+  @@map("Kinnisvara")
+}
+
+model Availability {
+  id         Int      @id @default(autoincrement()) @map("SaadavusID")
+  propertyId Int     @map("KinnisvaraID")
+  date       DateTime @map("Kuupaev") @db.Date
+  status     String   @map("Staatus") @db.NVarChar(30)
+
+  property Property @relation(fields: [propertyId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@map("Saadavus")
+}
+
+model Booking {
+  id         Int      @id @default(autoincrement()) @map("BroneeringID")
+  userId     Int      @map("KasutajaID")
+  propertyId Int      @map("KinnisvaraID")
+  startDate  DateTime @map("AlgusKuupaev") @db.Date
+  endDate    DateTime @map("LoppKuupaev") @db.Date
+  status     String   @map("Staatus") @db.NVarChar(30)
+
+  user     User      @relation(fields: [userId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  property Property  @relation(fields: [propertyId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  payment  Payment?
+  review   Review?
+
+  @@map("Broneering")
+}
+
+model Payment {
+  id          Int      @id @default(autoincrement()) @map("MakseID")
+  bookingId   Int      @unique @map("BroneeringID")
+  amount      Decimal  @map("Summa") @db.Decimal(10, 2)
+  paymentDate DateTime @map("MakseKuupaev") @db.Date
+  status      String   @map("Staatus") @db.NVarChar(30)
+  reference   String   @unique @map("Viitenumber") @db.NVarChar(50)
+
+  booking Booking @relation(fields: [bookingId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@map("Makse")
+}
+
+model Review {
+  id        Int     @id @default(autoincrement()) @map("ArvustusID")
+  bookingId Int    @unique @map("BroneeringID")
+  rating    Int    @map("Hinne")
+  comment   String? @map("Kommentaar") @db.NVarChar(500)
+
+  booking Booking @relation(fields: [bookingId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@map("Arvustus")
+}
+
+model Image {
+  id         Int    @id @default(autoincrement()) @map("PiltID")
+  propertyId Int   @map("KinnisvaraID")
+  url        String @map("FailiAsukoht") @db.NVarChar(300)
+
+  property Property @relation(fields: [propertyId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@map("Pilt")
+}
