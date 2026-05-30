@@ -12,6 +12,7 @@ model User {
   name  String @map("Nimi") @db.NVarChar(100)
   email String @unique @map("Email") @db.NVarChar(100)
   role  String @map("Roll") @db.NVarChar(30)
+  passwordHash String? @map("ParoolHash") @db.NVarChar(255)
 
   properties Property[]
   bookings   Booking[]
