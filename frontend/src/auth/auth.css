@@ -1,0 +1,24 @@
+.login-form{
+    align-items: center;
+    display:flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.auth-input{
+    text-align: center;
+    background-color: #d5d5d5;
+    border: none;
+    height: 17px;
+}
+
+.errors{
+    font-weight: bold;
+    color:red;
+}
+
+.auth-hint{
+    font-family: math;
+    font-size: 20px;
+    font-weight: bold;
+}
