@@ -16,6 +16,25 @@ router.post("/register", async (req, res) => {
       });
     }
 
+    if(name.length <= 1){
+      return res.status(400).json({
+        message: "The name must be more than 1 character long",
+      });
+    }
+
+    const emailRegex: RegExp = /\S+@\S+\.\S+/;
+    if(!emailRegex.test(email)){
+       return res.status(400).json({
+        message: 'Please enter a valid email address'
+        });
+    }
+
+    if(password.length < 6){
+    return res.status(400).json({      
+           message: 'The password must be longer than 6 characters'
+    });
+   }
+
     const existingUser = await prisma.user.findUnique({
       where: { email },
     });
