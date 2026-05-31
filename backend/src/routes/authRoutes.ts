@@ -116,9 +116,14 @@ router.post("/login", async (req, res) => {
       }
     );
 
+    res.cookie('jwt', token, {
+     httpOnly: true,
+     secure: true, 
+     maxAge: 3600000    
+    });
+
     res.json({
       message: "Login successful",
-      token,
       user: {
         id: user.id,
         name: user.name,
