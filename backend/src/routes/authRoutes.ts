@@ -31,7 +31,7 @@ router.post("/register", async (req, res) => {
 
     if(password.length < 6){
     return res.status(400).json({      
-           message: 'The password must be longer than 6 characters'
+           message: 'message: "The password must be at least 6 characters long"'
     });
    }
 
