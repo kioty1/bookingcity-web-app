@@ -2,6 +2,7 @@ import { Router } from "express";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import prisma from "../prisma";
+import { authenticateToken, AuthRequest } from "../middleware/authMiddleware";
 
 const router = Router();
 
@@ -16,24 +17,24 @@ router.post("/register", async (req, res) => {
       });
     }
 
-    if(name.length <= 1){
+    if (name.length <= 1) {
       return res.status(400).json({
         message: "The name must be more than 1 character long",
       });
     }
 
     const emailRegex: RegExp = /\S+@\S+\.\S+/;
-    if(!emailRegex.test(email)){
-       return res.status(400).json({
+    if (!emailRegex.test(email)) {
+      return res.status(400).json({
         message: 'Please enter a valid email address'
-        });
+      });
     }
 
-    if(password.length < 6){
-    return res.status(400).json({      
-           message: 'message: "The password must be at least 6 characters long"'
-    });
-   }
+    if (password.length < 6) {
+      return res.status(400).json({
+        message: 'message: "The password must be at least 6 characters long"'
+      });
+    }
 
     const existingUser = await prisma.user.findUnique({
       where: { email },
@@ -104,6 +105,7 @@ router.post("/login", async (req, res) => {
       });
     }
 
+
     const token = jwt.sign(
       {
         id: user.id,
@@ -116,10 +118,11 @@ router.post("/login", async (req, res) => {
       }
     );
 
-    res.cookie('jwt', token, {
-     httpOnly: true,
-     secure: true, 
-     maxAge: 3600000    
+    res.cookie("jwt", token, {
+      httpOnly: true,
+      secure: false,
+      sameSite: "lax",
+      maxAge: 3600000,
     });
 
     res.json({
@@ -134,6 +137,46 @@ router.post("/login", async (req, res) => {
   } catch (error: any) {
     res.status(500).json({
       message: "Login failed",
+      errorMessage: error.message,
+      errorCode: error.code,
+    });
+  }
+});
+
+// GET /api/auth/me
+router.get("/me", authenticateToken, async (req: AuthRequest, res) => {
+  try {
+    if (!req.user) {
+      return res.status(401).json({
+        message: "User is not authenticated",
+      });
+    }
+
+    const user = await prisma.user.findUnique({
+      where: {
+        id: req.user.id,
+      },
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        role: true,
+      },
+    });
+
+    if (!user) {
+      return res.status(401).json({
+        message: "User not found. Please login again.",
+      });
+    }
+
+    res.json({
+      message: "User authenticated successfully",
+      user,
+    });
+  } catch (error: any) {
+    res.status(500).json({
+      message: "Failed to get current user",
       errorMessage: error.message,
       errorCode: error.code,
     });

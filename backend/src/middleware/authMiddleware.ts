@@ -7,6 +7,9 @@ export interface AuthRequest extends Request {
     email: string;
     role: string;
   };
+  cookies: {
+    jwt?: string;
+  };
 }
 
 export const authenticateToken = (
@@ -15,7 +18,11 @@ export const authenticateToken = (
   next: NextFunction
 ) => {
   const authHeader = req.headers.authorization;
-  const token = authHeader && authHeader.split(" ")[1];
+
+  const tokenFromHeader = authHeader && authHeader.split(" ")[1];
+  const tokenFromCookie = req.cookies.jwt;
+
+  const token = tokenFromHeader || tokenFromCookie;
 
   if (!token) {
     return res.status(401).json({

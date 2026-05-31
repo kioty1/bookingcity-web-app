@@ -7,7 +7,7 @@ import bookingRoutes from "./routes/bookingRoutes";
 import userRoutes from "./routes/userRoutes";
 import authRoutes from "./routes/authRoutes";
 import { authenticateToken, authorizeRoles } from "./middleware/authMiddleware";
-
+import cookieParser from "cookie-parser";
 
 dotenv.config();
 
@@ -16,6 +16,7 @@ const app = express();
 
 app.use(cors());
 app.use(express.json());
+app.use(cookieParser());
 
 app.use("/api/properties", propertyRoutes);
 app.use("/api/bookings", bookingRoutes);
