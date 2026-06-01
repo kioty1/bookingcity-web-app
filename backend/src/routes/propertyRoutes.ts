@@ -278,7 +278,7 @@ router.put("/:id", authenticateToken, async (req: AuthRequest, res) => {
         address,
         type,
         description,
-        price,
+        price: Number(price),
         status: isAdmin ? status : existingProperty.status,
       },
     });
