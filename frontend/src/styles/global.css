@@ -224,3 +224,135 @@ button {
 .logo {
   cursor: pointer;
 }
+
+.admin-page {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 40px 24px;
+}
+
+.admin-header {
+  margin-bottom: 28px;
+}
+
+.admin-header h2 {
+  color: #003b82;
+  font-size: 32px;
+  margin-bottom: 8px;
+}
+
+.admin-header p {
+  color: #334155;
+  font-size: 16px;
+}
+
+.admin-users-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 24px;
+}
+
+.admin-user-card {
+  background: #ffffff;
+  border-radius: 18px;
+  padding: 24px;
+  box-shadow: 0 10px 30px rgba(0, 59, 130, 0.12);
+}
+
+.admin-user-top {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  align-items: flex-start;
+  margin-bottom: 18px;
+}
+
+.admin-user-top h3 {
+  font-size: 22px;
+  color: #002f6c;
+  margin-bottom: 6px;
+}
+
+.admin-user-top p {
+  color: #475569;
+}
+
+.role-badge {
+  background: #dbeafe;
+  color: #003b82;
+  padding: 8px 14px;
+  border-radius: 999px;
+  font-weight: 700;
+  font-size: 14px;
+}
+
+.admin-user-card h4 {
+  margin: 16px 0 12px;
+  color: #0f172a;
+}
+
+.admin-property-list {
+  display: grid;
+  gap: 12px;
+}
+
+.admin-property-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  align-items: center;
+  padding: 14px 16px;
+  background: #f8fafc;
+  border-radius: 14px;
+  border: 1px solid #e2e8f0;
+}
+
+.admin-property-row strong {
+  color: #0f172a;
+}
+
+.admin-property-row p {
+  margin-top: 4px;
+  color: #64748b;
+  font-size: 14px;
+}
+
+.status-badge {
+  padding: 7px 12px;
+  border-radius: 999px;
+  font-weight: 700;
+  font-size: 13px;
+  white-space: nowrap;
+}
+
+.status-badge.active {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.status-badge.blocked {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+.status-badge.pending {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.empty-text {
+  color: #64748b;
+  font-style: italic;
+}
+
+.error-text {
+  color: red;
+  font-weight: 700;
+}
+
+.status-legend {
+  display: flex;
+  gap: 10px;
+  margin-top: 12px;
+  flex-wrap: wrap;
+}

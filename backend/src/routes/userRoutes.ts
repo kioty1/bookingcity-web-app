@@ -1,5 +1,6 @@
 import { Router } from "express";
 import prisma from "../prisma";
+import { authenticateToken, authorizeRoles } from "../middleware/authMiddleware";
 
 const router = Router();
 
@@ -60,5 +61,55 @@ router.get("/:id", async (req, res) => {
     });
   }
 });
+
+// GET /api/users/admin/owners-properties
+router.get(
+  "/admin/owners-properties",
+  authenticateToken,
+  authorizeRoles("administraator"),
+  async (req, res) => {
+    try {
+      const users = await prisma.user.findMany({
+        where: {
+          role: {
+            in: ["omanik", "administraator"],
+          },
+        },
+        select: {
+          id: true,
+          name: true,
+          email: true,
+          role: true,
+          properties: {
+            select: {
+              id: true,
+              title: true,
+              city: true,
+              address: true,
+              type: true,
+              description: true,
+              price: true,
+              status: true,
+            },
+            orderBy: {
+              id: "asc",
+            },
+          },
+        },
+        orderBy: {
+          id: "asc",
+        },
+      });
+
+      res.json(users);
+    } catch (error: any) {
+      res.status(500).json({
+        message: "Failed to load users with properties",
+        errorMessage: error.message,
+        errorCode: error.code,
+      });
+    }
+  }
+);
 
 export default router;

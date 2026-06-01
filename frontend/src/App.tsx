@@ -4,8 +4,9 @@ import { LoginPage } from './pages/loginPage';
 import { RegistrationPage } from './pages/RegistrationPage';
 import { Auth } from './auth/auth';
 import PropertiesPage from './pages/PropertiesPage';
+import AdminUsersPage from "./pages/AdminUsersPage";
 
-type Page = 'home' | 'login' | 'register';
+type Page = 'home' | 'login' | 'register' | 'admin';
 
 function App() {
   const [page, setPage] = useState<Page>('home');
@@ -88,9 +89,20 @@ function App() {
         <div className="nav-actions">
           {authUser ? (
             <>
+              {authUser.role === 'administraator' && (
+                <button className="btn-secondary" onClick={() => setPage('admin')}>
+                  Admin panel
+                </button>
+              )}
+
+              <button className="btn-secondary" onClick={() => setPage('home')}>
+                Home
+              </button>
+
               <span className="user-info">
                 {authUser.name} ({authUser.role})
               </span>
+
               <button className="btn-logout" onClick={handleLogout}>
                 Logout
               </button>
@@ -109,7 +121,11 @@ function App() {
         </div>
       </header>
 
-      <PropertiesPage />
+      {page === 'admin' && authUser?.role === 'administraator' ? (
+        <AdminUsersPage />
+      ) : (
+        <PropertiesPage />
+      )}
     </div>
   );
 }
