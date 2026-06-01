@@ -183,4 +183,17 @@ router.get("/me", authenticateToken, async (req: AuthRequest, res) => {
   }
 });
 
+// POST /api/auth/logout
+router.post("/logout", (req, res) => {
+  res.clearCookie("jwt", {
+    httpOnly: true,
+    secure: false,
+    sameSite: "lax",
+  });
+
+  res.json({
+    message: "Logout successful",
+  });
+});
+
 export default router;

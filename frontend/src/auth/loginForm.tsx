@@ -47,6 +47,7 @@ export const LoginForm = ({ onSwitchToRegister }: { onSwitchToRegister: () => vo
         throw new Error(result.message);
       }
       console.log('success: Должен быть переход на другую страницу', result);
+      window.location.reload();
     } catch (err: any) {
       setErrorMessage(err.message || 'issue');
       console.error('Error:', err);

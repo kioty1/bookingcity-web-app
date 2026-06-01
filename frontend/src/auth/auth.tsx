@@ -1,31 +1,42 @@
-import React, { useState, useEffect } from 'react';
-import { LoginForm } from './loginForm';
-import { LoginPage } from '../pages/loginPage';
-import { RegistrationPage } from '../pages/RegistrationPage';
+import { useState, useEffect } from 'react';
+
+type AuthUser = {
+  id: number;
+  name: string;
+  email: string;
+  role: string;
+};
 
 export const Auth = () => {
-  const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
-debugger;
+  const [user, setUser] = useState<AuthUser | false | null>(null);
+
   useEffect(() => {
     const checkAuth = async () => {
       try {
         const response = await fetch('http://localhost:3000/api/auth/me', {
           method: 'GET',
-          credentials: 'include'
+          credentials: 'include',
         });
 
-        if (response.ok) {
-          setIsAuthenticated(true);
+        if (!response.ok) {
+          setUser(false);
+          return;
+        }
+
+        const data = await response.json();
+
+        if (data.user) {
+          setUser(data.user);
         } else {
-          setIsAuthenticated(false);
+          setUser(false);
         }
       } catch (error) {
-        setIsAuthenticated(false);
+        setUser(false);
       }
     };
 
     checkAuth();
   }, []);
 
-  return isAuthenticated;
+  return user;
 };
