@@ -1,9 +1,9 @@
-import { PropertyType } from "./rent.types";
+import { RentType } from "./rent.types";
 
 export type AdminType = {
     id: number;
     name: string;
     email: string;
     role: string;
-    properties: PropertyType[];
+    properties: RentType[];
 };

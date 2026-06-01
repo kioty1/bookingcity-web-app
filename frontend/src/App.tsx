@@ -5,11 +5,11 @@ import { RegistrationPage } from './pages/RegistrationPage';
 import { Auth } from './auth/auth';
 import PropertiesPage from './pages/RentPage';
 import AdminUsersPage from "./pages/AdminUsersPage";
-
-type Page = 'home' | 'login' | 'register' | 'admin';
+import { Header } from './components/header';
+import { Page } from './enums/page.enums';
 
 function App() {
-  const [page, setPage] = useState<Page>('home');
+  const [page, setPage] = useState<Page>(Page.Home);
   const authUser = Auth();
   
   if (authUser === null) {
@@ -22,112 +22,39 @@ function App() {
       credentials: 'include',
     });
 
+    
     window.location.reload();
   };
 
-  if (page === 'login' && !authUser) {
+
     return (
       <div className="app">
-        <header className="topbar">
-          <div className="logo" onClick={() => setPage('home')}>
-            BookingCity 🏨
-          </div>
+                <Header authUser= {authUser}
+        onLogout={handleLogout}
+        page={page}
+        setPage={setPage}></Header>
 
-          <div className="nav-actions">
-            <button className="btn-secondary" onClick={() => setPage('home')}>
-              Back to main
-            </button>
-            <button className="btn-primary" onClick={() => setPage('register')}>
-              Registration
-            </button>
-          </div>
-        </header>
-
-        <main className="auth-page">
+        {!authUser  && (page === Page.Login || page === Page.Register) && (
+          
+          <main className="auth-page">
           <div className="auth-card">
-            <LoginPage onSwitchToRegister={() => setPage('register')} />
-          </div>
-        </main>
-      </div>
-    );
-  }
+            {page === Page.Register && (
+              <RegistrationPage onSwitchToLogin={() => setPage(Page.Login)} />
+            )}
 
-  if (page === 'register' && !authUser) {
-    return (
-      <div className="app">
-        <header className="topbar">
-          <div className="logo" onClick={() => setPage('home')}>
-            BookingCity 🏨
-          </div>
-
-          <div className="nav-actions">
-            <button className="btn-secondary" onClick={() => setPage('home')}>
-              Back to main
-            </button>
-            <button className="btn-primary" onClick={() => setPage('login')}>
-              Login
-            </button>
-          </div>
-        </header>
-
-        <main className="auth-page">
-          <div className="auth-card">
-            <RegistrationPage onSwitchToLogin={() => setPage('login')} />
-          </div>
-        </main>
-      </div>
-    );
-  }
-
-  return (
-    <div className="app">
-      <header className="topbar">
-        <div className="logo" onClick={() => setPage('home')}>
-          BookingCity 🏨
-        </div>
-
-        <div className="nav-actions">
-          {authUser ? (
-            <>
-              {authUser.role === 'administraator' && (
-                <button className="btn-secondary" onClick={() => setPage('admin')}>
-                  Admin panel
-                </button>
-              )}
-
-              <button className="btn-secondary" onClick={() => setPage('home')}>
-                Home
-              </button>
-
-              <span className="user-info">
-                {authUser.name} ({authUser.role})
-              </span>
-
-              <button className="btn-logout" onClick={handleLogout}>
-                Logout
-              </button>
-            </>
-          ) : (
-            <>
-              <button className="btn-secondary" onClick={() => setPage('login')}>
-                Login
-              </button>
-
-              <button className="btn-primary" onClick={() => setPage('register')}>
-                Registration
-              </button>
-            </>
+            {page === Page.Login && (
+              <LoginPage onSwitchToRegister={() => setPage(Page.Register)} />
+            )}
+           </div>
+           </main>
           )}
-        </div>
-      </header>
-
-      {page === 'admin' && authUser && authUser?.role === 'administraator' ? (
-        <AdminUsersPage />
-      ) : (
-        <PropertiesPage />
-      )}
-    </div>
-  );
+           {page === Page.Admin && authUser && authUser?.role === 'administraator' ? (
+          <AdminUsersPage />
+            ) : (
+             page === Page.Home && <PropertiesPage />            
+            )}
+      </div>
+    );
 }
 
 export default App;

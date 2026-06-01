@@ -1,4 +1,4 @@
-export type PropertyType = {
+export type RentType = {
   id: number;
   title: string;
   city: string;

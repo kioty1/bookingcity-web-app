@@ -1,9 +1,9 @@
 import { useEffect, useState } from "react";
-import { PropertyType } from "../types/rent.types";
+import { RentType } from "../types/rent.types";
 
 export default function RentPage() {
-  const [properties, setProperties] = useState<PropertyType[]>([]);
-  const [filteredProperties, setFilteredProperties] = useState<PropertyType[]>([]);
+  const [properties, setProperties] = useState<RentType[]>([]);
+  const [filteredProperties, setFilteredProperties] = useState<RentType[]>([]);
   const [searchCity, setSearchCity] = useState("");
   const [error, setError] = useState("");
 

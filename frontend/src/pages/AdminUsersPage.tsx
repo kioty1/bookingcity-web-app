@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
-import { PropertyType } from "../types/rent.types";
-import { AdminType } from "../types/admin.type";
+import { RentType } from "../types/rent.types";
+import { AdminType } from "../types/admin.types";
 
 function AdminUsersPage() {
     const [users, setUsers] = useState<AdminType[]>([]);
