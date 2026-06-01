@@ -1,49 +1,226 @@
-body {
-  background-color: #b4cee7;;
-  margin: 0;
+* {
+  box-sizing: border-box;
 }
 
-h1 {
+body {
+  margin: 0;
+  background: linear-gradient(180deg, #d9ecff 0%, #f4f8fc 100%);
+  font-family: Arial, Helvetica, sans-serif;
+  color: #1f2937;
+}
+
+button {
+  cursor: pointer;
+  border: none;
+  font-family: inherit;
+}
+
+.app {
+  min-height: 100vh;
+}
+
+.topbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 24px 48px;
+  background: #003580;
+  color: white;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.15);
+}
+
+.logo {
+  font-size: 30px;
+  font-weight: 800;
+  letter-spacing: 0.3px;
+}
+
+.nav-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.user-info {
+  font-weight: 600;
+}
+
+.btn-primary,
+.btn-secondary,
+.btn-logout {
+  padding: 10px 18px;
+  border-radius: 999px;
+  font-weight: 700;
+  transition: transform 0.2s ease, opacity 0.2s ease;
+}
+
+.btn-primary {
+  background: #0071c2;
+  color: white;
+}
+
+.btn-secondary {
+  background: white;
   color: #003580;
 }
 
-button{
-  cursor: pointer;
+.btn-logout {
+  background: #ef4444;
+  color: white;
 }
 
-.btn-primary{
-  color: #ffffff;
-  background-color: #949ddb;
-  border-color: #818786;;
-  border-width: 2px;
-  border-radius: 20px;
-  transition: opacity 0.5s ease;
+.btn-primary:hover,
+.btn-secondary:hover,
+.btn-logout:hover {
+  transform: translateY(-1px);
+  opacity: 0.9;
 }
 
-.btn-secondary{
-  opacity: 90%;
-  color: #ffffff;
-  background-color: #949ddb;
-  border-color: #818786;;
-  border-width: 2px;
-  border-radius: 20px;
-  transition: opacity 0.5s ease;
+.hero {
+  margin: 32px auto;
+  max-width: 1100px;
+  padding: 34px;
+  border-radius: 24px;
+  background: linear-gradient(135deg, #003580 0%, #0071c2 100%);
+  color: white;
+  box-shadow: 0 18px 40px rgba(0, 53, 128, 0.25);
 }
 
-.btn-primary:hover{
-  opacity: 60%;
+.hero h1 {
+  margin: 0 0 10px 0;
+  font-size: 42px;
+  color: white;
 }
 
-.btn-secondary{
-  color: #ffffff;
-  background-color: #7c7f7b;
-  border-color: #818786;;
-  border-width: 2px;
+.hero p {
+  margin: 0 0 24px 0;
+  font-size: 18px;
+  opacity: 0.95;
+}
+
+.search-box {
+  display: flex;
+  gap: 12px;
+  background: #febb02;
+  padding: 12px;
+  border-radius: 14px;
+}
+
+.search-box input {
+  flex: 1;
+  border: none;
   border-radius: 10px;
-  font-size: 11px;
-  transition: opacity 0.5s ease;
+  padding: 14px 16px;
+  font-size: 16px;
 }
 
-.btn-secondary:hover{
-  opacity: 50%;
+.auth-card {
+  max-width: 420px;
+  margin: 0 auto 32px auto;
+  padding: 24px;
+  background: white;
+  border-radius: 18px;
+  box-shadow: 0 14px 30px rgba(15, 23, 42, 0.16);
+  text-align: center;
+}
+
+.properties-section {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 10px 32px 60px;
+}
+
+.section-title {
+  color: #003580;
+  font-size: 32px;
+  margin-bottom: 22px;
+}
+
+.properties-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 22px;
+}
+
+.property-card {
+  background: white;
+  border-radius: 20px;
+  padding: 22px;
+  box-shadow: 0 10px 24px rgba(15, 23, 42, 0.12);
+  border: 1px solid #e5e7eb;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.property-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 18px 34px rgba(15, 23, 42, 0.18);
+}
+
+.property-card h2 {
+  margin: 0 0 12px 0;
+  color: #111827;
+  font-size: 22px;
+}
+
+.property-meta {
+  color: #4b5563;
+  margin: 8px 0;
+}
+
+.price-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 18px;
+}
+
+.price {
+  font-size: 22px;
+  font-weight: 800;
+  color: #0071c2;
+}
+
+.status {
+  padding: 6px 12px;
+  border-radius: 999px;
+  background: #dcfce7;
+  color: #166534;
+  font-weight: 700;
+  font-size: 13px;
+}
+
+.details-btn {
+  margin-top: 16px;
+  width: 100%;
+  padding: 12px;
+  border-radius: 12px;
+  background: #003580;
+  color: white;
+  font-weight: 700;
+}
+
+.error-text {
+  color: #dc2626;
+  font-weight: 700;
+}
+.auth-page {
+  min-height: calc(100vh - 90px);
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding-top: 80px;
+}
+
+.auth-card {
+  width: 100%;
+  max-width: 430px;
+  padding: 30px;
+  background: white;
+  border-radius: 20px;
+  box-shadow: 0 18px 40px rgba(15, 23, 42, 0.16);
+  text-align: center;
+}
+
+.logo {
+  cursor: pointer;
 }

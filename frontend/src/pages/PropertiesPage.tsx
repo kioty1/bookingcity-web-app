@@ -13,6 +13,8 @@ type Property = {
 
 export default function PropertiesPage() {
   const [properties, setProperties] = useState<Property[]>([]);
+  const [filteredProperties, setFilteredProperties] = useState<Property[]>([]);
+  const [searchCity, setSearchCity] = useState("");
   const [error, setError] = useState("");
 
   useEffect(() => {
@@ -20,42 +22,77 @@ export default function PropertiesPage() {
       credentials: "include",
     })
       .then((res) => res.json())
-      .then((data) => setProperties(data))
+      .then((data) => {
+        setProperties(data);
+        setFilteredProperties(data);
+      })
       .catch(() => setError("Failed to load properties"));
   }, []);
 
+  const handleSearch = () => {
+    const query = searchCity.trim().toLowerCase();
+
+    if (!query) {
+      setFilteredProperties(properties);
+      return;
+    }
+
+    const result = properties.filter((property) =>
+      property.city.toLowerCase().includes(query)
+    );
+
+    setFilteredProperties(result);
+  };
+
   return (
-    <div style={{ padding: "30px" }}>
-      <h1>BookingCity properties</h1>
+    <>
+      <section className="hero">
+        <h1>Find your next stay in BookingCity</h1>
+        <p>Browse apartments, hotels and guest houses before logging in.</p>
 
-      {error && <p style={{ color: "red" }}>{error}</p>}
+        <div className="search-box">
+          <input
+            type="text"
+            placeholder="Search by city, for example Tallinn"
+            value={searchCity}
+            onChange={(event) => setSearchCity(event.target.value)}
+          />
+          <button className="btn-secondary" onClick={handleSearch}>
+            Search
+          </button>
+        </div>
+      </section>
 
-      <div style={{ display: "grid", gap: "16px", marginTop: "24px" }}>
-        {properties.map((property) => (
-          <div
-            key={property.id}
-            style={{
-              border: "1px solid #ccc",
-              borderRadius: "8px",
-              padding: "16px",
-              backgroundColor: "#f8f8f8",
-            }}
-          >
-            <h2>{property.title}</h2>
-            <p>
-              {property.city}, {property.address}
-            </p>
-            <p>{property.description}</p>
-            <p>
-              Type: <b>{property.type}</b>
-            </p>
-            <p>
-              Price: <b>{property.price} €</b>
-            </p>
-            <p>Status: {property.status}</p>
-          </div>
-        ))}
-      </div>
-    </div>
+      <section className="properties-section">
+        <h1 className="section-title">Available stays</h1>
+
+        {error && <p className="error-text">{error}</p>}
+
+        <div className="properties-grid">
+          {filteredProperties.map((property) => (
+            <article className="property-card" key={property.id}>
+              <h2>{property.title}</h2>
+
+              <p className="property-meta">
+                📍 {property.city}, {property.address}
+              </p>
+
+              <p>{property.description}</p>
+
+              <p className="property-meta">
+                Type: <b>{property.type}</b>
+              </p>
+
+              <div className="price-row">
+                <span className="price">{property.price} €</span>
+                <span className="status">{property.status}</span>
+              </div>
+
+              <button className="details-btn">View details</button>
+            </article>
+          ))}
+        </div>
+      </section>
+    </>
   );
 }

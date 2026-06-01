@@ -3,15 +3,15 @@ import { RegistrationFormErrors, RegistrationFormState } from "./types/auth.type
 import { validateRegistration } from "./validator";
 import './auth.css'
 
-export const RegistrationForm = ({onSwitchToLogin} : {onSwitchToLogin :() => void}) => {
-    const [formData, setFormData] = useState<RegistrationFormState>({
-     name: '',
-     email: '',
-     password: '',
-    });
+export const RegistrationForm = () => {
+  const [formData, setFormData] = useState<RegistrationFormState>({
+    name: '',
+    email: '',
+    password: '',
+  });
 
-    const [errors, setErrors] = useState<RegistrationFormErrors>({});
-  
+  const [errors, setErrors] = useState<RegistrationFormErrors>({});
+
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -25,7 +25,7 @@ export const RegistrationForm = ({onSwitchToLogin} : {onSwitchToLogin :() => voi
     e.preventDefault();
 
     const validationErrors = validateRegistration(formData);
-    
+
     if (Object.keys(validationErrors).length > 0) {
       setErrors(validationErrors);
       return;
@@ -33,17 +33,17 @@ export const RegistrationForm = ({onSwitchToLogin} : {onSwitchToLogin :() => voi
 
     setIsSubmitting(true);
     try {
-        setErrorMessage(null);
-        debugger;
+      setErrorMessage(null);
+      debugger;
       const response = await fetch('http://localhost:3000/api/auth/register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(formData),
       });
-      
+
       const result = await response.json();
 
-      if(!response.ok){
+      if (!response.ok) {
         throw new Error(result.message);
       }
       console.log('success: Должен быть переход на другую страницу', result);
@@ -55,29 +55,43 @@ export const RegistrationForm = ({onSwitchToLogin} : {onSwitchToLogin :() => voi
     }
   };
   return (
-    <form onSubmit={handleSubmit} className="login-form">
-      <input name="name" placeholder="Name" className="auth-input" onChange={handleChange} />
-      {errors.name && <span className="errors">{errors.name}</span>}
+    <form onSubmit={handleSubmit} className="auth-form">
+      <h2>Create BookingCity account</h2>
 
-      <input name="email" placeholder="Email" className="auth-input" onChange={handleChange} />
-      {errors.email && <span className="errors">{errors.email}</span>}
+      <input
+        name="name"
+        placeholder="Name"
+        className="auth-input"
+        value={formData.name}
+        onChange={handleChange}
+      />
+      {errors.name && <span className="auth-error">{errors.name}</span>}
 
-      <input name="password" type="Password" className="auth-input" placeholder="Пароль" onChange={handleChange} />
-      {errors.password && <span className="errors">{errors.password}</span>}
+      <input
+        name="email"
+        placeholder="Email"
+        className="auth-input"
+        value={formData.email}
+        onChange={handleChange}
+      />
+      {errors.email && <span className="auth-error">{errors.email}</span>}
 
-      {errorMessage && (
-        <span className="errors">
-           {errorMessage}
-        </span>
-      )}
-         <div style={{display: 'flex', gap:'15px'}}>
+      <input
+        name="password"
+        type="password"
+        placeholder="Password"
+        className="auth-input"
+        value={formData.password}
+        onChange={handleChange}
+      />
+      {errors.password && <span className="auth-error">{errors.password}</span>}
 
-      <button style={{height: '30px', width: '100px', fontSize: '14px'}} className="btn-primary" type="submit" disabled={isSubmitting}>
-        {isSubmitting ? 'Loading...' : 'Registration'}
-      </button>
-      <button style={{height: '30px', width: '100px', fontSize: '14px'}} onClick={onSwitchToLogin} type="button" className="btn-secondary" disabled={isSubmitting}>
-        Log in
-      </button>
+      {errorMessage && <span className="auth-error">{errorMessage}</span>}
+
+      <div className="auth-form-actions">
+        <button type="submit" disabled={isSubmitting}>
+          {isSubmitting ? "Loading..." : "Registration"}
+        </button>
       </div>
     </form>
   );

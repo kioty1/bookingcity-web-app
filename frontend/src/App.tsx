@@ -5,10 +5,10 @@ import { RegistrationPage } from './pages/RegistrationPage';
 import { Auth } from './auth/auth';
 import PropertiesPage from './pages/PropertiesPage';
 
-function App() {
-  const [isRegistering, setIsRegistering] = useState(false);
-  const [showAuthForm, setShowAuthForm] = useState(false);
+type Page = 'home' | 'login' | 'register';
 
+function App() {
+  const [page, setPage] = useState<Page>('home');
   const authUser = Auth();
 
   if (authUser === null) {
@@ -24,69 +24,90 @@ function App() {
     window.location.reload();
   };
 
-  return (
-    <div style={{ padding: '40px', fontFamily: 'sans-serif' }}>
-      <header
-        style={{
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          marginBottom: '30px',
-        }}
-      >
-        <h1 style={{ color: '#003b7a' }}>BookingCity 🏨</h1>
+  if (page === 'login' && !authUser) {
+    return (
+      <div className="app">
+        <header className="topbar">
+          <div className="logo" onClick={() => setPage('home')}>
+            BookingCity 🏨
+          </div>
 
-        <div>
+          <div className="nav-actions">
+            <button className="btn-secondary" onClick={() => setPage('home')}>
+              Back to main
+            </button>
+            <button className="btn-primary" onClick={() => setPage('register')}>
+              Registration
+            </button>
+          </div>
+        </header>
+
+        <main className="auth-page">
+          <div className="auth-card">
+            <LoginPage onSwitchToRegister={() => setPage('register')} />
+          </div>
+        </main>
+      </div>
+    );
+  }
+
+  if (page === 'register' && !authUser) {
+    return (
+      <div className="app">
+        <header className="topbar">
+          <div className="logo" onClick={() => setPage('home')}>
+            BookingCity 🏨
+          </div>
+
+          <div className="nav-actions">
+            <button className="btn-secondary" onClick={() => setPage('home')}>
+              Back to main
+            </button>
+            <button className="btn-primary" onClick={() => setPage('login')}>
+              Login
+            </button>
+          </div>
+        </header>
+
+        <main className="auth-page">
+          <div className="auth-card">
+            <RegistrationPage onSwitchToLogin={() => setPage('login')} />
+          </div>
+        </main>
+      </div>
+    );
+  }
+
+  return (
+    <div className="app">
+      <header className="topbar">
+        <div className="logo" onClick={() => setPage('home')}>
+          BookingCity 🏨
+        </div>
+
+        <div className="nav-actions">
           {authUser ? (
             <>
-              <span style={{ marginRight: '12px' }}>
+              <span className="user-info">
                 {authUser.name} ({authUser.role})
               </span>
-              <button onClick={handleLogout}>Logout</button>
+              <button className="btn-logout" onClick={handleLogout}>
+                Logout
+              </button>
             </>
           ) : (
             <>
-              <button
-                onClick={() => {
-                  setShowAuthForm(true);
-                  setIsRegistering(false);
-                }}
-                style={{ marginRight: '8px' }}
-              >
+              <button className="btn-secondary" onClick={() => setPage('login')}>
                 Login
               </button>
 
-              <button
-                onClick={() => {
-                  setShowAuthForm(true);
-                  setIsRegistering(true);
-                }}
-              >
+              <button className="btn-primary" onClick={() => setPage('register')}>
                 Registration
               </button>
             </>
           )}
         </div>
       </header>
-
-      {showAuthForm && !authUser && (
-        <div
-          style={{
-            maxWidth: '400px',
-            margin: '0 auto 30px auto',
-            padding: '20px',
-            backgroundColor: '#eef4ff',
-            borderRadius: '10px',
-            textAlign: 'center',
-          }}
-        >
-          {isRegistering ? (
-            <RegistrationPage onSwitchToLogin={() => setIsRegistering(false)} />
-          ) : (
-            <LoginPage onSwitchToRegister={() => setIsRegistering(true)} />
-          )}
-        </div>
-      )}
 
       <PropertiesPage />
     </div>
