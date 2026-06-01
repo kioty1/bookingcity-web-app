@@ -1,13 +1,13 @@
 import { useEffect, useState } from "react";
-import type { PropertyType, RentPageProps } from "../types/rent.types";
+import type { RentType, RentPageProps } from "../types/rent.types";
 
 export default function RentPage({ authUser }: RentPageProps) {
-  const [properties, setProperties] = useState<PropertyType[]>([]);
-  const [filteredProperties, setFilteredProperties] = useState<PropertyType[]>([]);
+  const [properties, setProperties] = useState<RentType[]>([]);
+  const [filteredProperties, setFilteredProperties] = useState<RentType[]>([]);
   const [searchCity, setSearchCity] = useState("");
   const [error, setError] = useState("");
   const [showForm, setShowForm] = useState(false);
-  const [editingProperty, setEditingProperty] = useState<PropertyType | null>(null);
+  const [editingProperty, setEditingProperty] = useState<RentType | null>(null);
 
   const [formData, setFormData] = useState({
     title: "",

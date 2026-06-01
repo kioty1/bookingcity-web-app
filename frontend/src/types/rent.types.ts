@@ -1,6 +1,6 @@
 import type { AuthUserState } from "./auth.types";
 
-export type PropertyType = {
+export type RentType = {
   id: number;
   ownerId: number;
   title: string;
