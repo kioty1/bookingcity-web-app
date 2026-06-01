@@ -38,7 +38,12 @@ export function Header({authUser, onLogout, page, setPage}: {authUser: AuthUserT
                     Login
                 </button>
             )}
-            
+
+            {page !== Page.MyListings &&(
+                <button className="btn-secondary" onClick={() => setPage('myListings')}>
+                    My listings
+                </button>
+            )}
             {page !== Page.Register &&(
                 <button className="btn-primary" onClick={() => setPage(Page.Register)}>
                     Registration

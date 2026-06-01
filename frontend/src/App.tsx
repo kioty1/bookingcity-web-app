@@ -5,6 +5,7 @@ import { RegistrationPage } from './pages/RegistrationPage';
 import { Auth } from './auth/auth';
 import PropertiesPage from './pages/RentPage';
 import AdminUsersPage from "./pages/AdminUsersPage";
+import MyListingsPage from './pages/MyListingsPage';
 import { Header } from './components/header';
 import { Page } from './enums/page.enums';
 
@@ -14,6 +15,19 @@ function App() {
   
   if (authUser === null) {
     return <div>Validation session...</div>;
+  }
+
+  const RenderPage = () => {
+      switch(page){
+      case Page.Home:
+        return <PropertiesPage />;
+      case Page.Admin:
+        return authUser && authUser?.role === 'administraator' ? <AdminUsersPage /> : null;  
+      case Page.MyListings:
+        return authUser ? <MyListingsPage/>;
+        default:
+      return null;
+      }
   }
 
   const handleLogout = async () => {
@@ -48,11 +62,8 @@ function App() {
            </div>
            </main>
           )}
-           {page === Page.Admin && authUser && authUser?.role === 'administraator' ? (
-          <AdminUsersPage />
-            ) : (
-             page === Page.Home && <PropertiesPage />            
-            )}
+
+          {RenderPage()}
       </div>
     );
 }
