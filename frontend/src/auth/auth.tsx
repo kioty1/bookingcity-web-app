@@ -1,14 +1,9 @@
 import { useState, useEffect } from 'react';
+import { AuthUserType } from '../types/auth.types';
 
-type AuthUser = {
-  id: number;
-  name: string;
-  email: string;
-  role: string;
-};
 
 export const Auth = () => {
-  const [user, setUser] = useState<AuthUser | false | null>(null);
+  const [user, setUser] = useState<AuthUserType | false | null>(null);
 
   useEffect(() => {
     const checkAuth = async () => {

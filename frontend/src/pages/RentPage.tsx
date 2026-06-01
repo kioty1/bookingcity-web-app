@@ -1,23 +1,13 @@
 import { useEffect, useState } from "react";
+import { PropertyType } from "../types/rent.types";
 
-type Property = {
-  id: number;
-  title: string;
-  city: string;
-  address: string | null;
-  type: string;
-  description: string | null;
-  price: string;
-  status: string;
-};
-
-export default function PropertiesPage() {
-  const [properties, setProperties] = useState<Property[]>([]);
-  const [filteredProperties, setFilteredProperties] = useState<Property[]>([]);
+export default function RentPage() {
+  const [properties, setProperties] = useState<PropertyType[]>([]);
+  const [filteredProperties, setFilteredProperties] = useState<PropertyType[]>([]);
   const [searchCity, setSearchCity] = useState("");
   const [error, setError] = useState("");
 
-  useEffect(() => {
+  useEffect(() => { 
     fetch("http://localhost:3000/api/properties", {
       credentials: "include",
     })

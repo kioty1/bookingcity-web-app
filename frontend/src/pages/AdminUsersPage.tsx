@@ -1,26 +1,9 @@
 import { useEffect, useState } from "react";
-
-type Property = {
-    id: number;
-    title: string;
-    city: string;
-    address: string;
-    type: string;
-    description: string;
-    price: string;
-    status: string;
-};
-
-type AdminUser = {
-    id: number;
-    name: string;
-    email: string;
-    role: string;
-    properties: Property[];
-};
+import { PropertyType } from "../types/rent.types";
+import { AdminType } from "../types/admin.type";
 
 function AdminUsersPage() {
-    const [users, setUsers] = useState<AdminUser[]>([]);
+    const [users, setUsers] = useState<AdminType[]>([]);
     const [error, setError] = useState("");
 
     useEffect(() => {

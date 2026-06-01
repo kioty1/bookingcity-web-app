@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { LoginPage } from './pages/loginPage';
 import { RegistrationPage } from './pages/RegistrationPage';
 import { Auth } from './auth/auth';
-import PropertiesPage from './pages/PropertiesPage';
+import PropertiesPage from './pages/RentPage';
 import AdminUsersPage from "./pages/AdminUsersPage";
 
 type Page = 'home' | 'login' | 'register' | 'admin';
@@ -11,7 +11,7 @@ type Page = 'home' | 'login' | 'register' | 'admin';
 function App() {
   const [page, setPage] = useState<Page>('home');
   const authUser = Auth();
-
+  
   if (authUser === null) {
     return <div>Validation session...</div>;
   }
@@ -121,7 +121,7 @@ function App() {
         </div>
       </header>
 
-      {page === 'admin' && authUser?.role === 'administraator' ? (
+      {page === 'admin' && authUser && authUser?.role === 'administraator' ? (
         <AdminUsersPage />
       ) : (
         <PropertiesPage />

@@ -1,7 +1,7 @@
 import { useState } from "react";
-import { LoginFormState, LoginFormErrors } from "./types/auth.types";
-import { validateLogin } from "./validator";
-import './auth.css'
+import { LoginFormState, LoginFormErrors } from "../types/auth.types";
+import { validateLogin } from "../auth/validator";
+import '../auth/auth.css'
 
 export const LoginForm = () => {
   const [formData, setFormData] = useState<LoginFormState>({

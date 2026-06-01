@@ -1,4 +1,4 @@
-import { LoginFormState, LoginFormErrors, RegistrationFormErrors, RegistrationFormState } from "./types/auth.types";
+import { LoginFormState, LoginFormErrors, RegistrationFormErrors, RegistrationFormState } from "../types/auth.types";
 
 export const validateLogin = (data: LoginFormState) : LoginFormErrors => {
     const errors: LoginFormErrors = {};
