@@ -4,14 +4,15 @@ import { LoginPage } from './pages/loginPage';
 import { RegistrationPage } from './pages/RegistrationPage';
 import { Auth } from './auth/auth';
 import PropertiesPage from './pages/RentPage';
-import AdminUsersPage from "./pages/AdminUsersPage";
+import AdminUsersPage from './pages/AdminUsersPage';
+import MyListingsPage from './pages/MyListingsPage';
 
-type Page = 'home' | 'login' | 'register' | 'admin';
+type Page = 'home' | 'login' | 'register' | 'admin' | 'myListings';
 
 function App() {
   const [page, setPage] = useState<Page>('home');
   const authUser = Auth();
-  
+
   if (authUser === null) {
     return <div>Validation session...</div>;
   }
@@ -37,6 +38,7 @@ function App() {
             <button className="btn-secondary" onClick={() => setPage('home')}>
               Back to main
             </button>
+
             <button className="btn-primary" onClick={() => setPage('register')}>
               Registration
             </button>
@@ -64,6 +66,7 @@ function App() {
             <button className="btn-secondary" onClick={() => setPage('home')}>
               Back to main
             </button>
+
             <button className="btn-primary" onClick={() => setPage('login')}>
               Login
             </button>
@@ -99,6 +102,10 @@ function App() {
                 Home
               </button>
 
+              <button className="btn-secondary" onClick={() => setPage('myListings')}>
+                My listings
+              </button>
+
               <span className="user-info">
                 {authUser.name} ({authUser.role})
               </span>
@@ -121,10 +128,12 @@ function App() {
         </div>
       </header>
 
-      {page === 'admin' && authUser && authUser?.role === 'administraator' ? (
+      {page === 'admin' && authUser && authUser.role === 'administraator' ? (
         <AdminUsersPage />
+      ) : page === 'myListings' && authUser ? (
+        <MyListingsPage />
       ) : (
-        <PropertiesPage />
+        <PropertiesPage authUser={authUser} />
       )}
     </div>
   );
