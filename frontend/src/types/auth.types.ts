@@ -15,6 +15,7 @@ export type AuthUserType = {
   email: string;
   role: string;
 };
+export type AuthUserState = AuthUserType | false;
 
 export type LoginFormErrors = Partial<Record<keyof LoginFormState, string>>; 
 export type RegistrationFormErrors = Partial<Record<keyof RegistrationFormState, string>>; 

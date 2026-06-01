@@ -8,6 +8,8 @@ import userRoutes from "./routes/userRoutes";
 import authRoutes from "./routes/authRoutes";
 import { authenticateToken, authorizeRoles } from "./middleware/authMiddleware";
 import cookieParser from "cookie-parser";
+import path from "path";
+
 
 dotenv.config();
 
@@ -20,6 +22,9 @@ credentials: true
 }));
 app.use(express.json());
 app.use(cookieParser());
+
+const uploadsPath = path.join(process.cwd(), "uploads");
+app.use("/uploads", express.static(uploadsPath));
 
 app.use("/api/properties", propertyRoutes);
 app.use("/api/bookings", bookingRoutes);

@@ -12,7 +12,7 @@ import { Page } from './enums/page.enums';
 function App() {
   const [page, setPage] = useState<Page>(Page.Home);
   const authUser = Auth();
-  
+
   if (authUser === null) {
     return <div>Validation session...</div>;
   }
