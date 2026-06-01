@@ -83,7 +83,7 @@ export default function RentPage({ authUser }: RentPageProps) {
     setImageFile(null);
   };
 
-  const handleEditListing = (property: PropertyType) => {
+  const handleEditListing = (property: RentType) => {
     setEditingProperty(property);
     setFormData({
       title: property.title,

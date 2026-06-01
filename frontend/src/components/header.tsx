@@ -24,7 +24,12 @@ export function Header({authUser, onLogout, page, setPage}: {authUser: AuthUserT
               </span>
               <button className="btn-logout" onClick={onLogout}>
                 Logout
-              </button>       
+              </button>      
+               {page !== Page.MyListings &&(
+                <button className="btn-secondary" onClick={() => setPage(Page.MyListings)}>
+                    My listings
+                </button>
+            )} 
                 </>
             ) : (
             <>
@@ -36,12 +41,6 @@ export function Header({authUser, onLogout, page, setPage}: {authUser: AuthUserT
             {page !== Page.Login &&(
                 <button className="btn-secondary" onClick={() => setPage(Page.Login)}>
                     Login
-                </button>
-            )}
-
-            {page !== Page.MyListings &&(
-                <button className="btn-secondary" onClick={() => setPage('myListings')}>
-                    My listings
                 </button>
             )}
             {page !== Page.Register &&(

@@ -20,13 +20,13 @@ function App() {
   const RenderPage = () => {
       switch(page){
       case Page.Home:
-        return <PropertiesPage />;
+        return <PropertiesPage authUser={authUser} />
       case Page.Admin:
         return authUser && authUser?.role === 'administraator' ? <AdminUsersPage /> : null;  
       case Page.MyListings:
-        return authUser ? <MyListingsPage/>;
+        return authUser ? <MyListingsPage/> : null;
         default:
-      return null;
+      return null
       }
   }
 
