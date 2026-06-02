@@ -182,9 +182,12 @@ router.get("/:id", async (req, res) => {
 // The ownerId is taken from JWT token, not from request body.
 router.post(
   "/",
+  (req, res, next) => {
+    next();
+  },
   authenticateToken,
-  upload.single("image"),
-  async (req: AuthRequest & { file?: Express.Multer.File }, res) => {
+  upload.array("images", 10),
+  async (req: AuthRequest, res) => {
     try {
       if (!req.user) {
         return res.status(401).json({
@@ -213,21 +216,42 @@ router.post(
         },
       });
 
-      if (req.file) {
-        await prisma.image.create({
-          data: {
+      const files = req.files as Express.Multer.File[];
+
+      if (files && files.length > 0) {
+        await prisma.image.createMany({
+          data: files.map((file) => ({
             propertyId: property.id,
-            url: `/uploads/${req.file.filename}`,
-          },
+            url: `/uploads/${file.filename}`,
+          })),
         });
       }
 
-      res.status(201).json({
+      const createdProperty = await prisma.property.findUnique({
+        where: {
+          id: property.id,
+        },
+        include: {
+          images: true,
+          owner: {
+            select: {
+              id: true,
+              name: true,
+              email: true,
+              role: true,
+            },
+          },
+        },
+      });
+
+      return res.status(201).json({
         message: "Property created successfully",
-        property,
+        property: createdProperty,
       });
     } catch (error: any) {
-      res.status(500).json({
+      console.error("Create property error:", error);
+
+      return res.status(500).json({
         message: "Failed to create property",
         errorMessage: error.message,
         errorCode: error.code,

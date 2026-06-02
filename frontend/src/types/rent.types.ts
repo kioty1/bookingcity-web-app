@@ -1,4 +1,5 @@
 import type { AuthUserState } from "./auth.types";
+import type { Page } from "../enums/page.enums";
 
 export type RentType = {
   id: number;
@@ -19,4 +20,5 @@ export type RentType = {
 
 export type RentPageProps = {
   authUser: AuthUserState;
+  setPage: (page: Page) => void;
 };

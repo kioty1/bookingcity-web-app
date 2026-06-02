@@ -3,5 +3,6 @@ export enum Page {
     'Login',
     'Register',
     'Admin',
-    'MyListings'
+    'MyListings',
+    'AddListing'
 }

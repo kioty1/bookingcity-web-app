@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import type { PropertyType } from "../types/rent.types";
+import { ImageCarousel } from "../components/ImageCarousel";
 
 export default function MyListingsPage() {
     const [listings, setListings] = useState<PropertyType[]>([]);
@@ -55,13 +56,7 @@ export default function MyListingsPage() {
                 <div className="properties-grid">
                     {listings.map((property) => (
                         <article className="property-card" key={property.id}>
-                            {property.images && property.images.length > 0 && (
-                                <img
-                                    className="property-image"
-                                    src={getImageUrl(property.images[0].url)}
-                                    alt={property.title}
-                                />
-                            )}
+                            <ImageCarousel images={property.images} title={property.title} />
 
                             <h2>{property.title}</h2>
 
