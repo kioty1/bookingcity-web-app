@@ -21,4 +21,5 @@ export type RentType = {
 export type RentPageProps = {
   authUser: AuthUserState;
   setPage: (page: Page) => void;
+  onViewDetails: (propertyId: number) => void;
 };

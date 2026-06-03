@@ -1,40 +1,68 @@
 import { useEffect, useState } from "react";
-import { RentType } from "../types/rent.types";
 import { AdminType } from "../types/admin.types";
 
-function AdminUsersPage() {
+type AdminUsersPageProps = {
+    onViewDetails: (propertyId: number) => void;
+};
+
+function AdminUsersPage({ onViewDetails }: AdminUsersPageProps) {
     const [users, setUsers] = useState<AdminType[]>([]);
     const [error, setError] = useState("");
 
-    useEffect(() => {
-        async function loadUsersWithProperties() {
-            try {
-                const response = await fetch(
-                    "http://localhost:3000/api/users/admin/owners-properties",
-                    {
-                        credentials: "include",
-                    }
-                );
-
-                if (!response.ok) {
-                    throw new Error("Failed to load admin data");
+    const loadUsersWithProperties = async () => {
+        try {
+            const response = await fetch(
+                "http://localhost:3000/api/users/admin/owners-properties",
+                {
+                    credentials: "include",
                 }
+            );
 
-                const data = await response.json();
-                setUsers(data);
-            } catch {
-                setError("Failed to load users and properties");
+            if (!response.ok) {
+                throw new Error("Failed to load admin data");
             }
-        }
 
+            const data = await response.json();
+            setUsers(data);
+        } catch {
+            setError("Failed to load users and properties");
+        }
+    };
+
+    useEffect(() => {
         loadUsersWithProperties();
     }, []);
+
+    const handleStatusChange = async (propertyId: number, status: string) => {
+        try {
+            const response = await fetch(
+                `http://localhost:3000/api/properties/admin/${propertyId}/status`,
+                {
+                    method: "PATCH",
+                    credentials: "include",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify({ status }),
+                }
+            );
+
+            if (!response.ok) {
+                throw new Error("Failed to update property status");
+            }
+
+            await loadUsersWithProperties();
+        } catch {
+            setError("Failed to update property status");
+        }
+    };
 
     return (
         <main className="admin-page">
             <section className="admin-header">
                 <h2>Admin dashboard</h2>
                 <p>Users and their properties with statuses</p>
+
                 <div className="status-legend">
                     <span className="status-badge active">aktiivne</span>
                     <span className="status-badge pending">ootel</span>
@@ -66,9 +94,40 @@ function AdminUsersPage() {
                                     <div className="admin-property-row" key={property.id}>
                                         <div>
                                             <strong>{property.title}</strong>
+
                                             <p>
                                                 {property.city}, {property.address}
                                             </p>
+
+                                            <div className="admin-status-actions">
+                                                <button
+                                                    className="admin-action-btn details"
+                                                    onClick={() => onViewDetails(property.id)}
+                                                >
+                                                    View details
+                                                </button>
+
+                                                <button
+                                                    className="admin-action-btn active"
+                                                    onClick={() => handleStatusChange(property.id, "aktiivne")}
+                                                >
+                                                    Set active
+                                                </button>
+
+                                                <button
+                                                    className="admin-action-btn pending"
+                                                    onClick={() => handleStatusChange(property.id, "ootel")}
+                                                >
+                                                    Set pending
+                                                </button>
+
+                                                <button
+                                                    className="admin-action-btn blocked"
+                                                    onClick={() => handleStatusChange(property.id, "blokeeritud")}
+                                                >
+                                                    Block
+                                                </button>
+                                            </div>
                                         </div>
 
                                         <span

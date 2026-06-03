@@ -1,8 +1,10 @@
 export enum Page {
-    'Home',
-    'Login',
-    'Register',
-    'Admin',
-    'MyListings',
-    'AddListing'
+  Home = "home",
+  Login = "login",
+  Register = "register",
+  Admin = "admin",
+  MyListings = "myListings",
+  AddListing = "addListing",
+  PropertyDetails = "propertyDetails",
+  EditListing = "editListing",
 }

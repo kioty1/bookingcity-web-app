@@ -71,28 +71,17 @@ router.get(
     try {
       const users = await prisma.user.findMany({
         where: {
-          role: {
-            in: ["omanik", "administraator"],
+          properties: {
+            some: {},
           },
         },
-        select: {
-          id: true,
-          name: true,
-          email: true,
-          role: true,
+        include: {
           properties: {
-            select: {
-              id: true,
-              title: true,
-              city: true,
-              address: true,
-              type: true,
-              description: true,
-              price: true,
-              status: true,
+            include: {
+              images: true,
             },
             orderBy: {
-              id: "asc",
+              id: "desc",
             },
           },
         },
@@ -104,9 +93,8 @@ router.get(
       res.json(users);
     } catch (error: any) {
       res.status(500).json({
-        message: "Failed to load users with properties",
+        message: "Failed to load users and properties",
         errorMessage: error.message,
-        errorCode: error.code,
       });
     }
   }

@@ -3,11 +3,12 @@ import type { RentType, RentPageProps } from "../types/rent.types";
 import { Page } from "../enums/page.enums";
 import { ImageCarousel } from "../components/ImageCarousel";
 
-export default function RentPage({ authUser, setPage }: RentPageProps) {
+export default function RentPage({ authUser, setPage, onViewDetails }: RentPageProps) {
   const [properties, setProperties] = useState<RentType[]>([]);
   const [filteredProperties, setFilteredProperties] = useState<RentType[]>([]);
   const [searchCity, setSearchCity] = useState("");
   const [error, setError] = useState("");
+
 
   const loadProperties = async () => {
     try {
@@ -46,7 +47,7 @@ export default function RentPage({ authUser, setPage }: RentPageProps) {
 
     setFilteredProperties(result);
   };
-  
+
   return (
     <>
       <section className="hero">
@@ -83,29 +84,41 @@ export default function RentPage({ authUser, setPage }: RentPageProps) {
         {error && <p className="error-text">{error}</p>}
 
         <div className="properties-grid">
-          {filteredProperties.map((property) => (
-            <article className="property-card" key={property.id}>
-              <ImageCarousel images={property.images} title={property.title} />
-              <h2>{property.title}</h2>
+          {filteredProperties.length === 0 ? (
+            <p className="empty-text">No listings found.</p>
+          ) : (
+            filteredProperties.map((property) => (
+              <article className="property-card" key={property.id}>
+                <ImageCarousel images={property.images} title={property.title} />
 
-              <p className="property-meta">
-                📍 {property.city}, {property.address}
-              </p>
+                <h2>{property.title}</h2>
 
-              <p>{property.description}</p>
+                <p className="property-meta">
+                  📍 {property.city}, {property.address}
+                </p>
 
-              <p className="property-meta">
-                Type: <b>{property.type}</b>
-              </p>
+                <p>{property.description}</p>
 
-              <div className="price-row">
-                <span className="price">{property.price} €</span>
-                <span className="status">{property.status}</span>
-              </div>
+                <p className="property-meta">
+                  Type: <b>{property.type}</b>
+                </p>
 
-              <button className="details-btn">View details</button>
-            </article>
-          ))}
+                <div className="price-row">
+                  <span className="price">{property.price} €</span>
+                  <span className="status">{property.status}</span>
+                </div>
+
+                <button
+                  className="details-btn"
+                  onClick={() => {
+                    onViewDetails(property.id);
+                  }}
+                >
+                  View details
+                </button>
+              </article>
+            ))
+          )}
         </div>
       </section>
     </>
