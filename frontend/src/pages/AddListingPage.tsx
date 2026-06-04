@@ -40,9 +40,15 @@ export default function AddListingPage({ setPage }: AddListingPageProps) {
   const handleSubmitListing = async (event: React.FormEvent) => {
     event.preventDefault();
 
-
     try {
       setError("");
+
+      const priceNumber = Number(formData.price);
+
+      if (!formData.price || isNaN(priceNumber) || priceNumber <= 0) {
+        setError("Price must be a positive number");
+        return;
+      }
 
       const data = new FormData();
 
@@ -63,19 +69,20 @@ export default function AddListingPage({ setPage }: AddListingPageProps) {
         body: data,
       });
 
-
       if (!response.ok) {
         const errorData = await response.json();
+
         setError(
           errorData.errorMessage ||
-            errorData.message ||
-            "Failed to create listing"
+          errorData.message ||
+          "Failed to create listing"
         );
+
         return;
       }
 
       setPage(Page.MyListings);
-    } catch (error) {
+    } catch {
       setError("Failed to create listing");
     }
   };
@@ -157,6 +164,9 @@ export default function AddListingPage({ setPage }: AddListingPageProps) {
               <label>Price</label>
               <input
                 name="price"
+                type="number"
+                min="1"
+                step="0.01"
                 placeholder="For example 75"
                 value={formData.price}
                 onChange={handleInputChange}

@@ -7,4 +7,5 @@ export enum Page {
   AddListing = "addListing",
   PropertyDetails = "propertyDetails",
   EditListing = "editListing",
+  MyBookings = "myBookings",
 }

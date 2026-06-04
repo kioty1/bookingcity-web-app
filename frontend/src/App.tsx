@@ -11,6 +11,7 @@ import { Page } from './enums/page.enums';
 import AddListingPage from './pages/AddListingPage';
 import PropertyDetailsPage from "./pages/PropertyDetailsPage";
 import EditListingPage from "./pages/EditListingPage";
+import MyBookingsPage from "./pages/MyBookingsPage";
 
 function App() {
   const [page, setPage] = useState<Page>(Page.Home);
@@ -60,6 +61,9 @@ const handleEditListing = (propertyId: number) => {
         return authUser ? (
           <MyListingsPage onEditListing={handleEditListing} />
         ) : null;
+
+      case Page.MyBookings:
+        return authUser ? <MyBookingsPage /> : null;
 
       case Page.AddListing:
         return authUser ? <AddListingPage setPage={setPage} /> : null;
