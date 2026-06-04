@@ -2,6 +2,7 @@ import { Router } from "express";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import prisma from "../prisma";
+import z from 'zod';
 import { authenticateToken, AuthRequest } from "../middleware/authMiddleware";
 
 const router = Router();
@@ -30,11 +31,11 @@ router.post("/register", async (req, res) => {
       });
     }
 
-    if (password.length < 6) {
-      return res.status(400).json({
-        message: 'message: "The password must be at least 6 characters long"'
-      });
-    }
+     const resPassword = passwordSchema.safeParse(password);
+
+     if(!resPassword.success){
+        message: resPassword.error.errors[0].message;
+     }
 
     const existingUser = await prisma.user.findUnique({
       where: { email },
@@ -195,5 +196,15 @@ router.post("/logout", (req, res) => {
     message: "Logout successful",
   });
 });
+
+
+const passwordSchema = z.string({
+    required_error: "A password is required",
+})
+.min(6, 'The password must be longer than 6 characters')
+.regex(/[A-Z]/, 'Must contain at least one uppercase letter')
+.regex(/[a-z]/, 'Must contain at least one lowercase letter ')
+.regex(/\d/, 'Must contain at least one number')
+.regex(/[@$!%*?&]/, 'There must be at least one special character');
 
 export default router;
