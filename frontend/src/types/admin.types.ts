@@ -6,4 +6,4 @@ export type AdminType = {
     email: string;
     role: string;
     properties: RentType[];
-};
+}; 
