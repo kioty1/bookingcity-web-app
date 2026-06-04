@@ -23,6 +23,12 @@ export default function EditListingPage({
     price: "",
   });
 
+  const [existingImages, setExistingImages] = useState<
+    { id: number; propertyId: number; url: string }[]
+  >([]);
+
+  const [newImageFiles, setNewImageFiles] = useState<File[]>([]);
+
   useEffect(() => {
     const loadListing = async () => {
       try {
@@ -47,6 +53,7 @@ export default function EditListingPage({
           description: data.description || "",
           price: String(data.price),
         });
+        setExistingImages(data.images || []);
       } catch {
         setError("Failed to load listing");
       } finally {
@@ -76,15 +83,32 @@ export default function EditListingPage({
     try {
       setError("");
 
+      const priceNumber = Number(formData.price);
+
+      if (!formData.price || isNaN(priceNumber) || priceNumber <= 0) {
+        setError("Price must be a positive number");
+        return;
+      }
+
+      const data = new FormData();
+
+      data.append("title", formData.title);
+      data.append("city", formData.city);
+      data.append("address", formData.address);
+      data.append("type", formData.type);
+      data.append("description", formData.description);
+      data.append("price", formData.price);
+
+      newImageFiles.forEach((file) => {
+        data.append("images", file);
+      });
+
       const response = await fetch(
         `http://localhost:3000/api/properties/${propertyId}`,
         {
           method: "PUT",
           credentials: "include",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(formData),
+          body: data,
         }
       );
 
@@ -98,13 +122,31 @@ export default function EditListingPage({
     }
   };
 
-  if (loading) {
-    return (
-      <main className="add-listing-page">
-        <p>Loading listing...</p>
-      </main>
+  const handleDeleteExistingImage = async (imageId: number) => {
+    try {
+      const response = await fetch(
+        `http://localhost:3000/api/properties/images/${imageId}`,
+        {
+          method: "DELETE",
+          credentials: "include",
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error("Failed to delete image");
+      }
+
+      setExistingImages((prev) => prev.filter((image) => image.id !== imageId));
+    } catch {
+      setError("Failed to delete image");
+    }
+  };
+
+  const handleRemoveNewImage = (indexToRemove: number) => {
+    setNewImageFiles((prev) =>
+      prev.filter((_, index) => index !== indexToRemove)
     );
-  }
+  };
 
   return (
     <main className="add-listing-page">
@@ -178,9 +220,83 @@ export default function EditListingPage({
             <label>Price</label>
             <input
               name="price"
+              type="number"
+              min="1"
+              step="0.01"
+              placeholder="For example 75"
               value={formData.price}
               onChange={handleInputChange}
             />
+          </div>
+
+          <div className="form-group">
+            <label>Current photos</label>
+
+            {existingImages.length === 0 ? (
+              <p className="empty-text">No current photos.</p>
+            ) : (
+              <div className="image-preview-grid">
+                {existingImages.map((image) => (
+                  <div className="image-preview-item" key={image.id}>
+                    <img
+                      src={
+                        image.url.startsWith("/uploads")
+                          ? `http://localhost:3000${image.url}`
+                          : `/${image.url}`
+                      }
+                      alt="Listing"
+                    />
+
+                    <button
+                      type="button"
+                      className="image-remove-btn"
+                      onClick={() => handleDeleteExistingImage(image.id)}
+                    >
+                      ×
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+
+          <div className="form-group">
+            <label>Add new photos</label>
+
+            <input
+              type="file"
+              accept="image/*"
+              multiple
+              onChange={(event) => {
+                const newFiles = Array.from(event.target.files || []);
+                setNewImageFiles((prev) => [...prev, ...newFiles]);
+                event.target.value = "";
+              }}
+            />
+
+            {newImageFiles.length > 0 && (
+              <p className="selected-files-text">
+                New selected photos: {newImageFiles.length}
+              </p>
+            )}
+
+            {newImageFiles.length > 0 && (
+              <div className="image-preview-grid">
+                {newImageFiles.map((file, index) => (
+                  <div className="image-preview-item" key={`${file.name}-${index}`}>
+                    <img src={URL.createObjectURL(file)} alt={file.name} />
+
+                    <button
+                      type="button"
+                      className="image-remove-btn"
+                      onClick={() => handleRemoveNewImage(index)}
+                    >
+                      ×
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
 
           <div className="form-actions">

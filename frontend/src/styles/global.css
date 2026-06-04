@@ -747,3 +747,37 @@ button {
   color: #991b1b;
   border-color: #fecaca;
 }
+.booking-form {
+  margin-top: 28px;
+  padding: 22px;
+  border-radius: 20px;
+  background: #f8fafc;
+  border: 1px solid #dbeafe;
+}
+
+.booking-form h3 {
+  color: #003b82;
+  margin-bottom: 16px;
+}
+
+.booking-date-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+  margin-bottom: 18px;
+}
+
+.success-text {
+  color: #166534;
+  background: #dcfce7;
+  border-radius: 12px;
+  padding: 10px 14px;
+  font-weight: 700;
+  margin-bottom: 14px;
+}
+
+@media (max-width: 700px) {
+  .booking-date-row {
+    grid-template-columns: 1fr;
+  }
+}

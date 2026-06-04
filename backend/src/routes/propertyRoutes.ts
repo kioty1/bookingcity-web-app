@@ -304,10 +304,84 @@ router.patch(
         });
       }
 
-      const updatedProperty = await prisma.property.findUnique({
-        where: {
-          id: property.id,
+      return res.json({
+        message: "Property status updated successfully",
+        property,
+      });
+    } catch (error: any) {
+      return res.status(500).json({
+        message: "Failed to update property status",
+        errorMessage: error.message,
+        errorCode: error.code,
+      });
+    }
+  }
+);
+
+// PUT /api/properties/:id
+// User can edit only own property.
+// Admin can edit any property.
+router.put(
+  "/:id",
+  authenticateToken,
+  upload.array("images", 10),
+  async (req: AuthRequest, res) => {
+    try {
+      const id = Number(req.params.id);
+
+      if (!req.user) {
+        return res.status(401).json({
+          message: "User is not authenticated",
+        });
+      }
+
+      const existingProperty = await prisma.property.findUnique({
+        where: { id },
+      });
+
+      if (!existingProperty) {
+        return res.status(404).json({
+          message: "Property not found",
+        });
+      }
+
+      const isOwner = existingProperty.ownerId === req.user.id;
+      const isAdmin = req.user.role === "administraator";
+
+      if (!isOwner && !isAdmin) {
+        return res.status(403).json({
+          message: "You can edit only your own properties",
+        });
+      }
+
+      const { title, city, address, type, description, price, status } = req.body;
+
+      const property = await prisma.property.update({
+        where: { id },
+        data: {
+          title,
+          city,
+          address,
+          type,
+          description,
+          price: Number(price),
+          status: isAdmin && status ? status : "ootel",
         },
+      });
+
+      const files = req.files as Express.Multer.File[];
+
+      if (files && files.length > 0) {
+        await prisma.image.createMany({
+          data: files.map((file) => ({
+            propertyId: property.id,
+            url: `/uploads/${file.filename}`,
+          })),
+        });
+      }
+
+      const updatedProperty = await prisma.property.findUnique({
+        where: { id },
         include: {
           images: true,
           owner: {
@@ -322,130 +396,133 @@ router.patch(
       });
 
       return res.json({
-        message: "Property status updated successfully",
+        message: "Property updated successfully",
         property: updatedProperty,
       });
     } catch (error: any) {
       return res.status(500).json({
-        message: "Failed to update property status",
+        message: "Failed to update property",
         errorMessage: error.message,
+        errorCode: error.code,
       });
     }
   }
 );
 
+// DELETE /api/properties/images/:imageId
+router.delete(
+  "/images/:imageId",
+  authenticateToken,
+  async (req: AuthRequest, res) => {
+    try {
+      const imageId = Number(req.params.imageId);
 
-      // PUT /api/properties/:id
-      // User can edit only own property.
-      // Admin can edit any property.
-      router.put("/:id", authenticateToken, async (req: AuthRequest, res) => {
-        try {
-          const id = Number(req.params.id);
+      if (!req.user) {
+        return res.status(401).json({
+          message: "User is not authenticated",
+        });
+      }
 
-          if (!req.user) {
-            return res.status(401).json({
-              message: "User is not authenticated",
-            });
-          }
-
-          const existingProperty = await prisma.property.findUnique({
-            where: { id },
-          });
-
-          if (!existingProperty) {
-            return res.status(404).json({
-              message: "Property not found",
-            });
-          }
-
-          const isOwner = existingProperty.ownerId === req.user.id;
-          const isAdmin = req.user.role === "administraator";
-
-          if (!isOwner && !isAdmin) {
-            return res.status(403).json({
-              message: "You can edit only your own properties",
-            });
-          }
-
-          const { title, city, address, type, description, price, status } = req.body;
-
-          const property = await prisma.property.update({
-            where: { id },
-            data: {
-              title,
-              city,
-              address,
-              type,
-              description,
-              price: Number(price),
-              status: isAdmin && status ? status : "ootel",
-            },
-          });
-
-          res.json({
-            message: "Property updated successfully",
-            property,
-          });
-        } catch (error: any) {
-          res.status(500).json({
-            message: "Failed to update property",
-            errorMessage: error.message,
-            errorCode: error.code,
-          });
-        }
-      });
-      // DELETE /api/properties/:id
-      // User can deactivate only own property.
-      // Admin can deactivate any property.
-      router.delete("/:id", authenticateToken, async (req: AuthRequest, res) => {
-        try {
-          const id = Number(req.params.id);
-
-          if (!req.user) {
-            return res.status(401).json({
-              message: "User is not authenticated",
-            });
-          }
-
-          const existingProperty = await prisma.property.findUnique({
-            where: { id },
-          });
-
-          if (!existingProperty) {
-            return res.status(404).json({
-              message: "Property not found",
-            });
-          }
-
-          const isOwner = existingProperty.ownerId === req.user.id;
-          const isAdmin = req.user.role === "administraator";
-
-          if (!isOwner && !isAdmin) {
-            return res.status(403).json({
-              message: "You can deactivate only your own properties",
-            });
-          }
-
-          const property = await prisma.property.update({
-            where: { id },
-            data: {
-              status: "blokeeritud",
-            },
-          });
-
-          res.json({
-            message: "Property deactivated successfully",
-            property,
-          });
-        } catch (error: any) {
-          res.status(500).json({
-            message: "Failed to deactivate property",
-            errorMessage: error.message,
-            errorCode: error.code,
-          });
-        }
+      const image = await prisma.image.findUnique({
+        where: { id: imageId },
+        include: {
+          property: true,
+        },
       });
 
+      if (!image) {
+        return res.status(404).json({
+          message: "Image not found",
+        });
+      }
 
+      const isOwner = image.property.ownerId === req.user.id;
+      const isAdmin = req.user.role === "administraator";
 
-      export default router;
+      if (!isOwner && !isAdmin) {
+        return res.status(403).json({
+          message: "You are not allowed to delete this image",
+        });
+      }
+
+      await prisma.image.delete({
+        where: { id: imageId },
+      });
+
+      if (!isAdmin) {
+        await prisma.property.update({
+          where: {
+            id: image.propertyId,
+          },
+          data: {
+            status: "ootel",
+          },
+        });
+      }
+
+      return res.json({
+        message: "Image deleted successfully",
+      });
+    } catch (error: any) {
+      return res.status(500).json({
+        message: "Failed to delete image",
+        errorMessage: error.message,
+        errorCode: error.code,
+      });
+    }
+  }
+);
+
+// DELETE /api/properties/:id
+// User can deactivate only own property.
+// Admin can deactivate any property.
+router.delete("/:id", authenticateToken, async (req: AuthRequest, res) => {
+  try {
+    const id = Number(req.params.id);
+
+    if (!req.user) {
+      return res.status(401).json({
+        message: "User is not authenticated",
+      });
+    }
+
+    const existingProperty = await prisma.property.findUnique({
+      where: { id },
+    });
+
+    if (!existingProperty) {
+      return res.status(404).json({
+        message: "Property not found",
+      });
+    }
+
+    const isOwner = existingProperty.ownerId === req.user.id;
+    const isAdmin = req.user.role === "administraator";
+
+    if (!isOwner && !isAdmin) {
+      return res.status(403).json({
+        message: "You can deactivate only your own properties",
+      });
+    }
+
+    const property = await prisma.property.update({
+      where: { id },
+      data: {
+        status: "blokeeritud",
+      },
+    });
+
+    return res.json({
+      message: "Property deactivated successfully",
+      property,
+    });
+  } catch (error: any) {
+    return res.status(500).json({
+      message: "Failed to deactivate property",
+      errorMessage: error.message,
+      errorCode: error.code,
+    });
+  }
+});
+
+export default router;

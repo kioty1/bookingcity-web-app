@@ -1,5 +1,6 @@
 import { Router } from "express";
 import prisma from "../prisma";
+import { authenticateToken, AuthRequest } from "../middleware/authMiddleware";
 
 const router = Router();
 
@@ -29,6 +30,42 @@ router.get("/", async (req, res) => {
   } catch (error: any) {
     res.status(500).json({
       message: "Failed to load bookings",
+      errorMessage: error.message,
+      errorCode: error.code,
+    });
+  }
+});
+
+// GET /api/bookings/my
+// Logged-in user can see their own bookings.
+router.get("/my", authenticateToken, async (req: AuthRequest, res) => {
+  try {
+    if (!req.user) {
+      return res.status(401).json({
+        message: "User is not authenticated",
+      });
+    }
+
+    const bookings = await prisma.booking.findMany({
+      where: {
+        userId: req.user.id,
+      },
+      include: {
+        property: {
+          include: {
+            images: true,
+          },
+        },
+      },
+      orderBy: {
+        id: "desc",
+      },
+    });
+
+    return res.json(bookings);
+  } catch (error: any) {
+    return res.status(500).json({
+      message: "Failed to load my bookings",
       errorMessage: error.message,
       errorCode: error.code,
     });
@@ -74,32 +111,89 @@ router.get("/:id", async (req, res) => {
 });
 
 // POST /api/bookings
-router.post("/", async (req, res) => {
+// Logged-in user can create a booking request.
+router.post("/", authenticateToken, async (req: AuthRequest, res) => {
   try {
-    const { userId, propertyId, startDate, endDate } = req.body;
+    if (!req.user) {
+      return res.status(401).json({
+        message: "User is not authenticated",
+      });
+    }
 
-    if (!userId || !propertyId || !startDate || !endDate) {
+    const { propertyId, startDate, endDate } = req.body;
+
+    if (propertyId === undefined || propertyId === null || !startDate || !endDate) {
       return res.status(400).json({
-        message: "userId, propertyId, startDate and endDate are required",
+        message: "Property, start date and end date are required",
+      });
+    }
+
+    const start = new Date(startDate);
+    const end = new Date(endDate);
+
+    if (start >= end) {
+      return res.status(400).json({
+        message: "End date must be after start date",
+      });
+    }
+
+    const property = await prisma.property.findUnique({
+      where: {
+        id: Number(propertyId),
+      },
+    });
+
+    if (!property) {
+      return res.status(404).json({
+        message: "Property not found",
+      });
+    }
+
+    if (property.status !== "aktiivne") {
+      return res.status(400).json({
+        message: "Only active listings can be booked",
+      });
+    }
+
+    const existingBooking = await prisma.booking.findFirst({
+      where: {
+        propertyId: Number(propertyId),
+        status: {
+          in: ["ootel", "kinnitatud"],
+        },
+        startDate: {
+          lt: end,
+        },
+        endDate: {
+          gt: start,
+        },
+      },
+    });
+
+    if (existingBooking) {
+      return res.status(400).json({
+        message: "This listing is already booked for selected dates",
       });
     }
 
     const booking = await prisma.booking.create({
       data: {
-        userId: Number(userId),
+        userId: req.user.id,
         propertyId: Number(propertyId),
-        startDate: new Date(startDate),
-        endDate: new Date(endDate),
+        startDate: start,
+        endDate: end,
         status: "ootel",
       },
     });
 
-    res.status(201).json({
-      message: "Booking created successfully",
+    return res.status(201).json({
+      message: "Booking request created successfully",
       booking,
     });
   } catch (error: any) {
-    res.status(500).json({
+    console.error("Create booking error:", error);
+
+    return res.status(500).json({
       message: "Failed to create booking",
       errorMessage: error.message,
       errorCode: error.code,
