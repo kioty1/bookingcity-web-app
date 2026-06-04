@@ -41,6 +41,7 @@ const handleEditListing = (propertyId: number) => {
   };
 
   const RenderPage = () => {
+    debugger;
     switch (page) {
       case Page.Home:
         return (
@@ -114,11 +115,12 @@ const handleEditListing = (propertyId: number) => {
         <main className="auth-page">
           <div className="auth-card">
             {page === Page.Register && (
-              <RegistrationPage onSwitchToLogin={() => setPage(Page.Login)} />
+              
+              <RegistrationPage onSwitchToLogin={() => setPage(Page.Login)} setPage={setPage} />
             )}
 
             {page === Page.Login && (
-              <LoginPage onSwitchToRegister={() => setPage(Page.Register)} />
+              <LoginPage onSwitchToRegister={() => setPage(Page.Register)} setPage={setPage} />
             )}
           </div>
         </main>

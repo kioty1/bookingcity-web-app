@@ -1,9 +1,10 @@
 import { useState } from "react";
 import { RegistrationFormErrors, RegistrationFormState } from "../types/auth.types";
 import { validateRegistration } from "../auth/validator";
+import { Page } from "../enums/page.enums";
 import '../auth/auth.css'
 
-export const RegistrationForm = () => {
+export const RegistrationForm = ({setPage}: {setPage: (page: Page) => void} ) => {
   const [formData, setFormData] = useState<RegistrationFormState>({
     name: '',
     email: '',
@@ -34,7 +35,6 @@ export const RegistrationForm = () => {
     setIsSubmitting(true);
     try {
       setErrorMessage(null);
-      debugger;
       const response = await fetch('http://localhost:3000/api/auth/register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -46,7 +46,8 @@ export const RegistrationForm = () => {
       if (!response.ok) {
         throw new Error(result.message);
       }
-      console.log('success: Должен быть переход на другую страницу', result);
+      debugger;
+      setPage(Page.Login);
     } catch (err: any) {
       setErrorMessage(err.message || 'issue');
       console.error('Error:', err);
