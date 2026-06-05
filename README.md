@@ -151,6 +151,27 @@ Security-related technologies:
 - bcrypt for password hashing
 - JWT for authentication
 
+## Prerequisites
+
+Before running the project, make sure the following software and access are available:
+
+* Node.js 18 or newer
+* npm
+* Git
+* Access to Microsoft SQL Server database
+* Valid database username and password
+* University VPN connection, if the database server is not available from the current network
+
+Check Node.js and npm versions:
+
+```bash
+node --version
+npm --version
+```
+
+The backend and frontend must be started in two separate terminals.
+
+
 ## Installation and Setup
 
 ### 1. Clone the repository
