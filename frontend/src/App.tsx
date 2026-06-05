@@ -19,14 +19,16 @@ function App() {
   const [page, setPage] = useState<Page>(Page.Home);
   const [selectedPropertyId, setSelectedPropertyId] = useState<number | null>(null);
 
+  const [detailsBackPage, setDetailsBackPage] = useState<Page>(Page.Home);
   const authUser = Auth();
 
   if (authUser === null) {
     return <div>Validation session...</div>;
   }
 
-  const handleViewDetails = (propertyId: number) => {
+  const handleViewDetails = (propertyId: number, backPage: Page = Page.Home) => {
     setSelectedPropertyId(propertyId);
+    setDetailsBackPage(backPage);
     setPage(Page.PropertyDetails);
   };
   const handleEditListing = (propertyId: number) => {
@@ -44,7 +46,6 @@ function App() {
   };
 
   const RenderPage = () => {
-    debugger;
     switch (page) {
       case Page.Home:
         return (
@@ -61,12 +62,15 @@ function App() {
         ) : null;
 
       case Page.OwnerBookings:
-        return authUser ? <OwnerBookingsPage /> : null;
+        return authUser &&
+          (authUser.role === "omanik" || authUser.role === "administraator") ? (
+          <OwnerBookingsPage />
+        ) : null;
 
       case Page.Admin:
-        return authUser && authUser.role === 'administraator' ? (
+        return authUser && authUser.role === "administraator" ? (
           <AdminUsersPage
-            onViewDetails={handleViewDetails}
+            onViewDetails={(propertyId) => handleViewDetails(propertyId, Page.Admin)}
             setPage={setPage}
           />
         ) : null;
@@ -88,6 +92,7 @@ function App() {
             propertyId={selectedPropertyId}
             setPage={setPage}
             authUser={authUser}
+            backPage={detailsBackPage}
           />
         ) : (
           <main className="details-page">

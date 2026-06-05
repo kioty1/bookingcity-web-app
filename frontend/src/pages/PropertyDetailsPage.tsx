@@ -8,9 +8,10 @@ type PropertyDetailsPageProps = {
   propertyId: number;
   setPage: (page: Page) => void;
   authUser: AuthUserState;
+  backPage: Page;
 };
 
-export default function PropertyDetailsPage({ propertyId, setPage, authUser }: PropertyDetailsPageProps) {
+export default function PropertyDetailsPage({ propertyId, setPage, authUser, backPage, }: PropertyDetailsPageProps) {
   const [property, setProperty] = useState<RentType | null>(null);
   const [error, setError] = useState("");
 
@@ -104,8 +105,11 @@ export default function PropertyDetailsPage({ propertyId, setPage, authUser }: P
       <main className="details-page">
         <p className="error-text">{error}</p>
 
-        <button className="btn-secondary" onClick={() => setPage(Page.Home)}>
-          Back to listings
+        <button
+          className="btn-secondary details-back-btn"
+          onClick={() => setPage(backPage)}
+        >
+          {backPage === Page.Admin ? "Back to admin panel" : "Back to listings"}
         </button>
       </main>
     );
@@ -123,9 +127,9 @@ export default function PropertyDetailsPage({ propertyId, setPage, authUser }: P
     <main className="details-page">
       <button
         className="btn-secondary details-back-btn"
-        onClick={() => setPage(Page.Home)}
+        onClick={() => setPage(backPage)}
       >
-        Back to listings
+        {backPage === Page.Admin ? "Back to admin panel" : "Back to listings"}
       </button>
 
       <section className="details-card">

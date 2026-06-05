@@ -30,7 +30,7 @@ export function Header({ authUser, onLogout, page, setPage }: { authUser: AuthUs
                 My listings
               </button>
             )}
-            {authUser.role === "omanik" && (
+            {(authUser.role === "omanik" || authUser.role === "administraator") && (
               <button
                 className="btn-secondary"
                 onClick={() => setPage(Page.OwnerBookings)}
