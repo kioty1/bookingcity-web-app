@@ -124,7 +124,7 @@ const handleEditListing = (propertyId: number) => {
             )}
 
             {page === Page.Login && (
-              <LoginPage onSwitchToRegister={() => setPage(Page.Register)} setPage={setPage} />
+              <LoginPage onSwitchToRegister={() => setPage(Page.Register)} />
             )}
           </div>
         </main>
