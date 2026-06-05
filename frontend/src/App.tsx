@@ -12,6 +12,8 @@ import AddListingPage from './pages/AddListingPage';
 import PropertyDetailsPage from "./pages/PropertyDetailsPage";
 import EditListingPage from "./pages/EditListingPage";
 import MyBookingsPage from "./pages/MyBookingsPage";
+import OwnerBookingsPage from "./pages/OwnerBookingsPage";
+import AllBookingsPage from "./pages/AllBookingsPage";
 
 function App() {
   const [page, setPage] = useState<Page>(Page.Home);
@@ -23,14 +25,14 @@ function App() {
     return <div>Validation session...</div>;
   }
 
-const handleViewDetails = (propertyId: number) => {
-  setSelectedPropertyId(propertyId);
-  setPage(Page.PropertyDetails);
-};
-const handleEditListing = (propertyId: number) => {
-  setSelectedPropertyId(propertyId);
-  setPage(Page.EditListing);
-};
+  const handleViewDetails = (propertyId: number) => {
+    setSelectedPropertyId(propertyId);
+    setPage(Page.PropertyDetails);
+  };
+  const handleEditListing = (propertyId: number) => {
+    setSelectedPropertyId(propertyId);
+    setPage(Page.EditListing);
+  };
 
   const handleLogout = async () => {
     await fetch('http://localhost:3000/api/auth/logout', {
@@ -53,9 +55,20 @@ const handleEditListing = (propertyId: number) => {
           />
         );
 
+      case Page.AllBookings:
+        return authUser && authUser.role === "administraator" ? (
+          <AllBookingsPage />
+        ) : null;
+
+      case Page.OwnerBookings:
+        return authUser ? <OwnerBookingsPage /> : null;
+
       case Page.Admin:
         return authUser && authUser.role === 'administraator' ? (
-          <AdminUsersPage onViewDetails={handleViewDetails} />
+          <AdminUsersPage
+            onViewDetails={handleViewDetails}
+            setPage={setPage}
+          />
         ) : null;
 
       case Page.MyListings:
@@ -74,6 +87,7 @@ const handleEditListing = (propertyId: number) => {
           <PropertyDetailsPage
             propertyId={selectedPropertyId}
             setPage={setPage}
+            authUser={authUser}
           />
         ) : (
           <main className="details-page">
@@ -119,7 +133,7 @@ const handleEditListing = (propertyId: number) => {
         <main className="auth-page">
           <div className="auth-card">
             {page === Page.Register && (
-              
+
               <RegistrationPage onSwitchToLogin={() => setPage(Page.Login)} setPage={setPage} />
             )}
 

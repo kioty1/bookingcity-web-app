@@ -7,5 +7,18 @@ export type BookingType = {
   startDate: string;
   endDate: string;
   status: string;
-  property: RentType;
+  property: RentType & {
+    owner?: {
+      id: number;
+      name: string;
+      email: string;
+      role: string;
+    };
+  };
+  user?: {
+    id: number;
+    name: string;
+    email: string;
+    role: string;
+  };
 };

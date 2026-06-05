@@ -2,16 +2,15 @@ import { useEffect, useState } from "react";
 import type { RentType } from "../types/rent.types";
 import { Page } from "../enums/page.enums";
 import { ImageCarousel } from "../components/ImageCarousel";
+import type { AuthUserState } from "../types/auth.types";
 
 type PropertyDetailsPageProps = {
   propertyId: number;
   setPage: (page: Page) => void;
+  authUser: AuthUserState;
 };
 
-export default function PropertyDetailsPage({
-  propertyId,
-  setPage,
-}: PropertyDetailsPageProps) {
+export default function PropertyDetailsPage({ propertyId, setPage, authUser }: PropertyDetailsPageProps) {
   const [property, setProperty] = useState<RentType | null>(null);
   const [error, setError] = useState("");
 
@@ -19,6 +18,7 @@ export default function PropertyDetailsPage({
   const [endDate, setEndDate] = useState("");
   const [bookingMessage, setBookingMessage] = useState("");
   const [bookingError, setBookingError] = useState("");
+  const today = new Date().toISOString().split("T")[0];
 
   useEffect(() => {
     const loadPropertyDetails = async () => {
@@ -56,6 +56,10 @@ export default function PropertyDetailsPage({
     try {
       setBookingError("");
       setBookingMessage("");
+      if (!authUser) {
+        setBookingError("Please log in to book this listing");
+        return;
+      }
 
       if (!startDate || !endDate) {
         setBookingError("Please select start and end date");
@@ -135,8 +139,8 @@ export default function PropertyDetailsPage({
               property.status === "aktiivne"
                 ? "details-status-badge active"
                 : property.status === "ootel"
-                ? "details-status-badge pending"
-                : "details-status-badge blocked"
+                  ? "details-status-badge pending"
+                  : "details-status-badge blocked"
             }
           >
             {property.status}
@@ -178,6 +182,7 @@ export default function PropertyDetailsPage({
                 <label>Start date</label>
                 <input
                   type="date"
+                  min={today}
                   value={startDate}
                   onChange={(event) => {
                     const selectedStartDate = event.target.value;
@@ -202,9 +207,19 @@ export default function PropertyDetailsPage({
               </div>
             </div>
 
-            <button className="btn-primary" type="submit">
-              Book now
-            </button>
+            {authUser ? (
+              <button className="btn-primary" type="submit">
+                Book now
+              </button>
+            ) : (
+              <button
+                className="btn-primary"
+                type="button"
+                onClick={() => setPage(Page.Login)}
+              >
+                Login to book
+              </button>
+            )}
           </form>
         </div>
       </section>

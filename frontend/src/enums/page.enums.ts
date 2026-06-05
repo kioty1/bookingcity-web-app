@@ -8,4 +8,6 @@ export enum Page {
   PropertyDetails = "propertyDetails",
   EditListing = "editListing",
   MyBookings = "myBookings",
+  OwnerBookings = "ownerBookings",
+  AllBookings = "allBookings",
 }

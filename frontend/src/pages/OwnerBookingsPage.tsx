@@ -2,31 +2,62 @@ import { useEffect, useState } from "react";
 import type { BookingType } from "../types/booking.types";
 import { ImageCarousel } from "../components/ImageCarousel";
 
-export default function MyBookingsPage() {
+export default function OwnerBookingsPage() {
   const [bookings, setBookings] = useState<BookingType[]>([]);
   const [error, setError] = useState("");
-
   const [statusFilter, setStatusFilter] = useState("all");
-  const loadMyBookings = async () => {
+
+  const loadOwnerBookings = async () => {
     try {
-      const response = await fetch("http://localhost:3000/api/bookings/my", {
+      const response = await fetch("http://localhost:3000/api/bookings/owner", {
         credentials: "include",
       });
 
+      const data = await response.json();
+
       if (!response.ok) {
-        throw new Error("Failed to load my bookings");
+        setError(data.message || "Failed to load booking requests");
+        return;
       }
 
-      const data = await response.json();
       setBookings(data);
     } catch {
-      setError("Failed to load my bookings");
+      setError("Failed to load booking requests");
     }
   };
 
   useEffect(() => {
-    loadMyBookings();
+    loadOwnerBookings();
   }, []);
+
+  const updateBookingStatus = async (bookingId: number, status: string) => {
+    try {
+      setError("");
+
+      const response = await fetch(
+        `http://localhost:3000/api/bookings/${bookingId}/status`,
+        {
+          method: "PUT",
+          credentials: "include",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ status }),
+        }
+      );
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        setError(data.message || "Failed to update booking status");
+        return;
+      }
+
+      await loadOwnerBookings();
+    } catch {
+      setError("Failed to update booking status");
+    }
+  };
 
   const formatDate = (date: string) => {
     return new Date(date).toLocaleDateString("en-GB");
@@ -61,47 +92,20 @@ export default function MyBookingsPage() {
       ? bookings
       : bookings.filter((booking) => booking.status === statusFilter);
 
-  const cancelBooking = async (bookingId: number) => {
-    try {
-      setError("");
-
-      const response = await fetch(
-        `http://localhost:3000/api/bookings/${bookingId}/status`,
-        {
-          method: "PUT",
-          credentials: "include",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            status: "tuhistatud",
-          }),
-        }
-      );
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        setError(data.message || "Failed to cancel booking");
-        return;
-      }
-
-      await loadMyBookings();
-    } catch {
-      setError("Failed to cancel booking");
-    }
-  };
-
   return (
     <main className="my-listings-page">
       <section className="admin-header">
-        <h2>My bookings</h2>
-        <p>Here you can see your booking requests and their statuses.</p>
+        <h2>Booking requests</h2>
+        <p>Here you can confirm or cancel bookings for your listings.</p>
 
         <div className="status-legend">
           <button
             type="button"
-            className={statusFilter === "all" ? "status-filter active-filter" : "status-filter"}
+            className={
+              statusFilter === "all"
+                ? "status-filter active-filter"
+                : "status-filter"
+            }
             onClick={() => setStatusFilter("all")}
           >
             all
@@ -150,8 +154,8 @@ export default function MyBookingsPage() {
       {filteredBookings.length === 0 ? (
         <p className="empty-text">
           {bookings.length === 0
-            ? "You have no bookings yet."
-            : "No bookings found for this status."}
+            ? "You have no booking requests yet."
+            : "No booking requests found for this status."}
         </p>
       ) : (
         <div className="properties-grid">
@@ -168,17 +172,18 @@ export default function MyBookingsPage() {
                 📍 {booking.property.city}, {booking.property.address}
               </p>
 
-              <p>{booking.property.description}</p>
+              {booking.user && (
+                <p className="property-meta">
+                  Client: <b>{booking.user.name}</b>
+                </p>
+              )}
 
               <p className="property-meta">
                 Dates:{" "}
                 <b>
-                  {formatDate(booking.startDate)} - {formatDate(booking.endDate)}
+                  {formatDate(booking.startDate)} -{" "}
+                  {formatDate(booking.endDate)}
                 </b>
-              </p>
-
-              <p className="property-meta">
-                Type: <b>{booking.property.type}</b>
               </p>
 
               <div className="price-row">
@@ -188,14 +193,27 @@ export default function MyBookingsPage() {
                   {getStatusText(booking.status)}
                 </span>
               </div>
-              {booking.status !== "tuhistatud" && (
+
+              {booking.status === "ootel" && (
                 <div className="admin-status-actions">
                   <button
                     type="button"
-                    className="admin-action-btn blocked"
-                    onClick={() => cancelBooking(booking.id)}
+                    className="admin-action-btn active"
+                    onClick={() =>
+                      updateBookingStatus(booking.id, "kinnitatud")
+                    }
                   >
-                    Cancel booking
+                    Confirm
+                  </button>
+
+                  <button
+                    type="button"
+                    className="admin-action-btn blocked"
+                    onClick={() =>
+                      updateBookingStatus(booking.id, "tuhistatud")
+                    }
+                  >
+                    Cancel
                   </button>
                 </div>
               )}

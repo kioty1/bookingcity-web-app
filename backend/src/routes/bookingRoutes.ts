@@ -5,36 +5,64 @@ import { authenticateToken, AuthRequest } from "../middleware/authMiddleware";
 const router = Router();
 
 // GET /api/bookings
-router.get("/", async (req, res) => {
-  try {
-    const bookings = await prisma.booking.findMany({
-      include: {
-        user: {
-          select: {
-            id: true,
-            name: true,
-            email: true,
-            role: true,
-          },
-        },
-        property: true,
-        payment: true,
-        review: true,
-      },
-      orderBy: {
-        id: "asc",
-      },
-    });
+router.get(
+  "/",
+  authenticateToken,
+  async (req: AuthRequest, res) => {
+    try {
+      if (!req.user) {
+        return res.status(401).json({
+          message: "User is not authenticated",
+        });
+      }
 
-    res.json(bookings);
-  } catch (error: any) {
-    res.status(500).json({
-      message: "Failed to load bookings",
-      errorMessage: error.message,
-      errorCode: error.code,
-    });
+      if (req.user.role !== "administraator") {
+        return res.status(403).json({
+          message: "Only administrator can see all bookings",
+        });
+      }
+
+      const bookings = await prisma.booking.findMany({
+        include: {
+          user: {
+            select: {
+              id: true,
+              name: true,
+              email: true,
+              role: true,
+            },
+          },
+          property: {
+            include: {
+              images: true,
+              owner: {
+                select: {
+                  id: true,
+                  name: true,
+                  email: true,
+                  role: true,
+                },
+              },
+            },
+          },
+          payment: true,
+          review: true,
+        },
+        orderBy: {
+          id: "desc",
+        },
+      });
+
+      return res.json(bookings);
+    } catch (error: any) {
+      return res.status(500).json({
+        message: "Failed to load bookings",
+        errorMessage: error.message,
+        errorCode: error.code,
+      });
+    }
   }
-});
+);
 
 // GET /api/bookings/my
 // Logged-in user can see their own bookings.
@@ -66,6 +94,52 @@ router.get("/my", authenticateToken, async (req: AuthRequest, res) => {
   } catch (error: any) {
     return res.status(500).json({
       message: "Failed to load my bookings",
+      errorMessage: error.message,
+      errorCode: error.code,
+    });
+  }
+});
+
+// GET /api/bookings/owner
+// Owner can see booking requests for their properties.
+router.get("/owner", authenticateToken, async (req: AuthRequest, res) => {
+  try {
+    if (!req.user) {
+      return res.status(401).json({
+        message: "User is not authenticated",
+      });
+    }
+
+    const bookings = await prisma.booking.findMany({
+      where: {
+        property: {
+          ownerId: req.user.id,
+        },
+      },
+      include: {
+        user: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+            role: true,
+          },
+        },
+        property: {
+          include: {
+            images: true,
+          },
+        },
+      },
+      orderBy: {
+        id: "desc",
+      },
+    });
+
+    return res.json(bookings);
+  } catch (error: any) {
+    return res.status(500).json({
+      message: "Failed to load owner bookings",
       errorMessage: error.message,
       errorCode: error.code,
     });
@@ -202,10 +276,17 @@ router.post("/", authenticateToken, async (req: AuthRequest, res) => {
 });
 
 // PUT /api/bookings/:id/status
-router.put("/:id/status", async (req, res) => {
+// Owner or admin can confirm/cancel booking.
+router.put("/:id/status", authenticateToken, async (req: AuthRequest, res) => {
   try {
     const id = Number(req.params.id);
     const { status } = req.body;
+
+    if (!req.user) {
+      return res.status(401).json({
+        message: "User is not authenticated",
+      });
+    }
 
     if (!status) {
       return res.status(400).json({
@@ -221,6 +302,35 @@ router.put("/:id/status", async (req, res) => {
       });
     }
 
+    const existingBooking = await prisma.booking.findUnique({
+      where: { id },
+      include: {
+        property: true,
+      },
+    });
+
+    if (!existingBooking) {
+      return res.status(404).json({
+        message: "Booking not found",
+      });
+    }
+
+    const isOwner = existingBooking.property.ownerId === req.user.id;
+    const isAdmin = req.user.role === "administraator";
+    const isBookingUser = existingBooking.userId === req.user.id;
+
+    if (!isOwner && !isAdmin && !isBookingUser) {
+      return res.status(403).json({
+        message: "You are not allowed to update this booking",
+      });
+    }
+
+    if (isBookingUser && !isOwner && !isAdmin && status !== "tuhistatud") {
+      return res.status(403).json({
+        message: "Client can only cancel own booking",
+      });
+    }
+
     const booking = await prisma.booking.update({
       where: { id },
       data: {
@@ -228,12 +338,12 @@ router.put("/:id/status", async (req, res) => {
       },
     });
 
-    res.json({
+    return res.json({
       message: "Booking status updated successfully",
       booking,
     });
   } catch (error: any) {
-    res.status(500).json({
+    return res.status(500).json({
       message: "Failed to update booking status",
       errorMessage: error.message,
       errorCode: error.code,
